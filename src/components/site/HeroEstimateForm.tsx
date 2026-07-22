@@ -5,14 +5,18 @@ import { Check, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
+import { SERVICES, type ServiceSlug } from "@/lib/site";
 
 const heroContactSchema = z.object({
+  service: z.string().min(1, "Please pick a service"),
   name: z.string().trim().min(1, "Name is required").max(100),
   email: z.string().trim().email("Please enter a valid email").max(200),
   phone: z.string().trim().min(7, "Please enter a valid phone").max(30),
 });
 
 export function HeroEstimateForm() {
+  const [service, setService] = useState<ServiceSlug | "">("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -21,7 +25,7 @@ export function HeroEstimateForm() {
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    const result = heroContactSchema.safeParse({ name, email, phone });
+    const result = heroContactSchema.safeParse({ service, name, email, phone });
     if (!result.success) {
       const next: Record<string, string> = {};
       result.error.issues.forEach((issue) => (next[String(issue.path[0])] = issue.message));
@@ -30,7 +34,7 @@ export function HeroEstimateForm() {
     }
     setErrors({});
     // TODO: connect form submission to backend / CRM (Supabase, email service, or getquotepage.com integration).
-    console.log("[Hydro Hive hero estimate request]", { name, email, phone });
+    console.log("[Hydro Hive hero estimate request]", { service, name, email, phone });
     toast.success("Thanks! We'll get back to you within 24 hours.");
     setDone(true);
   };
@@ -50,6 +54,7 @@ export function HeroEstimateForm() {
           variant="outline"
           onClick={() => {
             setDone(false);
+            setService("");
             setName("");
             setEmail("");
             setPhone("");
@@ -70,6 +75,30 @@ export function HeroEstimateForm() {
       </p>
 
       <div className="mt-5 space-y-3">
+        <div>
+          <Label className="text-sm font-semibold text-navy">What do you need cleaned?</Label>
+          <div className="mt-1.5 grid grid-cols-2 gap-2">
+            {SERVICES.map((s) => {
+              const active = service === s.slug;
+              return (
+                <button
+                  key={s.slug}
+                  type="button"
+                  onClick={() => setService(s.slug)}
+                  className={cn(
+                    "rounded-xl border-2 px-3 py-2 text-center text-sm font-medium transition-all",
+                    active
+                      ? "border-navy bg-navy text-primary-foreground"
+                      : "border-border text-navy hover:border-navy/40",
+                  )}
+                >
+                  {s.name}
+                </button>
+              );
+            })}
+          </div>
+          {errors.service && <p className="mt-1 text-xs text-destructive">{errors.service}</p>}
+        </div>
         <div>
           <Label className="text-sm font-semibold text-navy">Name</Label>
           <Input
