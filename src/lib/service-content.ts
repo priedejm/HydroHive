@@ -1,4 +1,11 @@
 import type { ServiceSlug } from "@/lib/site";
+import powerWashingSideofHouse from "@/assets/powerWashingSideofHouse.jpg";
+import droneFlying from "@/assets/droneFlying.jpeg";
+import dock from "@/assets/dockFinal.png";
+import aptCommercial from "@/assets/aptCommercial.jpeg";
+import aptCommercialHallway from "@/assets/aptCommercialHallway.jpeg";
+import chaseBank from "@/assets/ChaseBank.png";
+import church from "@/assets/Church.png";
 
 export const SERVICE_CONTENT: Record<
   ServiceSlug,
@@ -6,10 +13,11 @@ export const SERVICE_CONTENT: Record<
     image: string;
     bullets: string[];
     faqs: Array<{ q: string; a: string }>;
+    gallery?: Array<{ src: string; alt: string }>;
   }
 > = {
   residential: {
-    image: "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=1400&q=80",
+    image: powerWashingSideofHouse,
     bullets: [
       "Soft wash siding & roofs",
       "Pressure wash driveways & pavers",
@@ -36,7 +44,12 @@ export const SERVICE_CONTENT: Record<
     ],
   },
   commercial: {
-    image: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1400&q=80",
+    image: aptCommercial,
+    gallery: [
+      { src: aptCommercialHallway, alt: "Apartment complex breezeway soft wash" },
+      { src: chaseBank, alt: "Bank branch storefront & parking lot cleaning" },
+      { src: church, alt: "Multi-story church exterior cleaning setup" },
+    ],
     bullets: [
       "After-hours scheduling",
       "Fully insured / W-9 ready",
@@ -63,7 +76,7 @@ export const SERVICE_CONTENT: Record<
     ],
   },
   dock: {
-    image: "https://images.unsplash.com/photo-1523496922380-91d5afba98a3?auto=format&fit=crop&w=1400&q=80",
+    image: dock,
     bullets: [
       "Marine-safe chemistry",
       "Mildew & algae removal",
@@ -90,7 +103,7 @@ export const SERVICE_CONTENT: Record<
     ],
   },
   "drone-cleaning": {
-    image: "https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=1600&q=80",
+    image: droneFlying,
     bullets: [
       "Steeples & multi-story homes",
       "Tall commercial facades",

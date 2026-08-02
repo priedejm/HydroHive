@@ -1,6 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SectionReveal } from "@/components/site/SectionReveal";
 import { BeforeAfterSlider } from "@/components/site/BeforeAfterSlider";
+import before1 from "@/assets/before1.jpeg";
+import after1 from "@/assets/after1.jpeg";
+import before2 from "@/assets/before2.webp";
+import after2 from "@/assets/after2.jpeg";
+import before3 from "@/assets/before3.webp";
+import after3 from "@/assets/after3.webp";
+import before4 from "@/assets/before4.webp";
+import after4 from "@/assets/after4.jpeg";
 
 export const Route = createFileRoute("/gallery")({
   head: () => ({
@@ -21,15 +29,11 @@ export const Route = createFileRoute("/gallery")({
 
 type Item = { id: string; before: string; after: string; label: string };
 
-/* Replace placeholder images with real before/after project photos */
 const ITEMS: Item[] = [
-  { id: "r1", label: "Home siding - West Ashley", before: "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=900&q=60&sat=-100", after: "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=900&q=80" },
-  { id: "r2", label: "Driveway - Mount Pleasant", before: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=900&q=60&sat=-100", after: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=900&q=80" },
-  { id: "r3", label: "Roof soft wash - James Island", before: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=60&sat=-100", after: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=80" },
-  { id: "c1", label: "Storefront - King St", before: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=900&q=60&sat=-100", after: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=900&q=80" },
-  { id: "c2", label: "Bank exterior", before: "https://images.unsplash.com/photo-1554469384-e58fac16e23a?auto=format&fit=crop&w=900&q=60&sat=-100", after: "https://images.unsplash.com/photo-1554469384-e58fac16e23a?auto=format&fit=crop&w=900&q=80" },
-  { id: "d1", label: "Private dock - Wando River", before: "https://images.unsplash.com/photo-1523496922380-91d5afba98a3?auto=format&fit=crop&w=900&q=60&sat=-100", after: "https://images.unsplash.com/photo-1523496922380-91d5afba98a3?auto=format&fit=crop&w=900&q=80" },
-  { id: "d2", label: "Boardwalk restoration", before: "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?auto=format&fit=crop&w=900&q=60&sat=-100", after: "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?auto=format&fit=crop&w=900&q=80" },
+  { id: "r1", label: "Deck & Siding Soft Wash", before: before1, after: after1 },
+  { id: "r2", label: "Home Exterior & Walkway", before: before2, after: after2 },
+  { id: "r3", label: "Roof & Deck Restoration", before: before3, after: after3 },
+  { id: "r4", label: "Pool Deck & Pavers", before: before4, after: after4 },
 ];
 
 function GalleryPage() {
@@ -48,7 +52,7 @@ function GalleryPage() {
       </section>
 
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-14">
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 sm:grid-cols-2">
           {ITEMS.map((item, i) => (
             <SectionReveal key={item.id} delay={i * 60}>
               <div>
@@ -58,10 +62,6 @@ function GalleryPage() {
             </SectionReveal>
           ))}
         </div>
-
-        <p className="mt-14 text-center text-xs text-muted-foreground">
-          Placeholder imagery - swap in real project photos.
-        </p>
       </section>
     </div>
   );

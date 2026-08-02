@@ -76,6 +76,19 @@ export function ServiceDetailPage({ slug }: { slug: ServiceSlug }) {
           </div>
         </section>
 
+        {content.gallery && content.gallery.length > 0 && (
+          <SectionReveal className="mt-14">
+            <h2 className="font-display text-3xl text-navy">Recent {service.name.toLowerCase()} work</h2>
+            <div className="mt-6 grid gap-6 sm:grid-cols-3">
+              {content.gallery.map((g) => (
+                <div key={g.src} className="overflow-hidden rounded-2xl shadow-sm border border-border">
+                  <img src={g.src} alt={g.alt} className="w-full aspect-[3/4] object-cover" />
+                </div>
+              ))}
+            </div>
+          </SectionReveal>
+        )}
+
         {/* Service areas internal linking */}
         <SectionReveal className="mt-20">
           <h2 className="font-display text-3xl text-navy">Serving {service.name.toLowerCase()} clients across the Lowcountry</h2>

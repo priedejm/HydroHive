@@ -13,6 +13,12 @@ export type Review = {
  */
 export const REVIEWS: Review[] = [
   {
+    name: "Father Gregory West",
+    meta: "4 reviews",
+    timeAgo: "2 months ago",
+    text: "Nate, Kyle, and Ben are hard working perfectionists who will not rest until the job is done thoroughly. They were on time, professional, polite, and great to work with. I highly recommend them.",
+  },
+  {
     name: "Zach LoCicero",
     meta: "3 reviews",
     timeAgo: "a month ago",

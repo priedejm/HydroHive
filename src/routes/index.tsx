@@ -7,6 +7,16 @@ import { TrustStrip } from "@/components/site/TrustStrip";
 import { ReviewsSection } from "@/components/site/ReviewsSection";
 import { HeroEstimateForm } from "@/components/site/HeroEstimateForm";
 import { SERVICES, SITE } from "@/lib/site";
+import powerWashingSideofHouse from "@/assets/powerWashingSideofHouse.jpg";
+import dronFlying2 from "@/assets/dronFlying2.jpeg";
+import dock from "@/assets/dockFinal.png";
+import aptCommercial2 from "@/assets/aptCommercial2.jpeg";
+import before1 from "@/assets/before1.jpeg";
+import after1 from "@/assets/after1.jpeg";
+import before3 from "@/assets/before3.webp";
+import after3 from "@/assets/after3.webp";
+import before4 from "@/assets/before4.webp";
+import after4 from "@/assets/after4.jpeg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -30,14 +40,10 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 
-const RES_IMG =
-  "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=1200&q=80";
-const COM_IMG =
-  "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=80";
-const DOCK_IMG =
-  "https://images.unsplash.com/photo-1523496922380-91d5afba98a3?auto=format&fit=crop&w=1200&q=80";
-const DRONE_IMG =
-  "https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=1600&q=80";
+const RES_IMG = powerWashingSideofHouse;
+const COM_IMG = aptCommercial2;
+const DOCK_IMG = dock;
+const DRONE_IMG = dronFlying2;
 
 function Home() {
   const teasers = SERVICES.filter((s) => s.slug !== "drone-cleaning");
@@ -112,7 +118,7 @@ function Home() {
 
         <div className="mx-auto max-w-7xl w-full px-4 sm:px-6 lg:px-8 pt-24 pb-28 lg:pt-32 lg:pb-36">
           <div className="grid gap-12 lg:grid-cols-[1fr_520px] lg:items-center">
-            <div className="order-2 lg:order-1">
+            <div className="lg:order-1">
               <SectionReveal delay={80}>
                 <h1 className="mt-6 font-display text-5xl sm:text-7xl lg:text-[5.5rem] leading-[0.9] tracking-tight text-white">
                   Exterior cleaning,
@@ -168,10 +174,10 @@ function Home() {
               </SectionReveal>
             </div>
 
-            <SectionReveal delay={200} className="order-1 lg:order-2 flex justify-center">
-              <div className="relative w-full max-w-md sm:max-w-lg">
-                <div className="absolute -inset-6 -z-10 rounded-full bg-gold/25 blur-3xl" />
-                <div className="rounded-[2rem] bg-cream p-6 sm:p-7 shadow-2xl ring-4 ring-gold/50">
+            <SectionReveal delay={200} className="lg:order-2 flex justify-center">
+              <div className="relative w-full max-w-xs sm:max-w-lg mt-10 lg:mt-0">
+                <div className="absolute -inset-4 sm:-inset-6 -z-10 rounded-full bg-gold/25 blur-3xl" />
+                <div className="rounded-[1.5rem] sm:rounded-[2rem] bg-cream p-4 sm:p-7 shadow-2xl ring-4 ring-gold/50">
                   <HeroEstimateForm />
                 </div>
               </div>
@@ -235,19 +241,19 @@ function Home() {
         <div className="mt-10 grid gap-6 md:grid-cols-3">
           {[
             {
-              before: "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=900&q=60&sat=-100",
-              after: "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=900&q=80",
-              alt: "Home siding",
+              before: before1,
+              after: after1,
+              alt: "Siding & deck soft wash",
             },
             {
-              before: "https://images.unsplash.com/photo-1523496922380-91d5afba98a3?auto=format&fit=crop&w=900&q=60&sat=-100",
-              after: "https://images.unsplash.com/photo-1523496922380-91d5afba98a3?auto=format&fit=crop&w=900&q=80",
-              alt: "Dock",
+              before: before3,
+              after: after3,
+              alt: "Roof & deck restoration",
             },
             {
-              before: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=900&q=60&sat=-100",
-              after: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=900&q=80",
-              alt: "Storefront",
+              before: before4,
+              after: after4,
+              alt: "Pool deck & pavers",
             },
           ].map((p, i) => (
             <SectionReveal key={i} delay={i * 80}>
@@ -351,7 +357,7 @@ function Home() {
               <img
                 src={DRONE_IMG}
                 alt="Drone soft-wash cleaning a tall building"
-                className="w-full aspect-[4/3] object-cover"
+                className="w-full aspect-[3/4] object-cover"
               />
             </div>
           </SectionReveal>

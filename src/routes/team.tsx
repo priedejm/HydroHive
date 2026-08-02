@@ -1,8 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Camera, ShieldCheck } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SectionReveal } from "@/components/site/SectionReveal";
 import { cn } from "@/lib/utils";
+import working from "@/assets/working.jpg";
+import benPhoto from "@/assets/Ben.png";
+import natePhoto from "@/assets/Nate.png";
 
 export const Route = createFileRoute("/team")({
   head: () => ({
@@ -20,7 +23,7 @@ export const Route = createFileRoute("/team")({
 
 type Member = {
   first: string;
-  initials: string;
+  photo: string;
   role: string;
   bio: string[];
 };
@@ -28,7 +31,7 @@ type Member = {
 const TEAM: Member[] = [
   {
     first: "Ben",
-    initials: "B",
+    photo: benPhoto,
     role: "Operations · Engineer",
     bio: [
       "Ben is the engineer of the group (Clemson class of 2024). But before college and all the way through it, he was working in the service industry.",
@@ -38,7 +41,7 @@ const TEAM: Member[] = [
   },
   {
     first: "Nate",
-    initials: "N",
+    photo: natePhoto,
     role: "Field · Lacrosse alum",
     bio: [
       "Nate is one of five kids. He grew up on a horse farm in Maryland - his family means everything to him.",
@@ -66,6 +69,13 @@ function TeamPage() {
             </div>
           </SectionReveal>
         </div>
+        <SectionReveal delay={120}>
+          <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 pb-16">
+            <div className="overflow-hidden rounded-3xl shadow-lg border-4 border-white">
+              <img src={working} alt="The Hive crew on site" className="w-full aspect-[4/3] object-cover object-bottom" />
+            </div>
+          </div>
+        </SectionReveal>
       </section>
 
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-14 space-y-20">
@@ -75,17 +85,7 @@ function TeamPage() {
             <SectionReveal key={m.first}>
               <div className={cn("grid gap-10 md:grid-cols-[minmax(0,340px)_1fr] items-center", reverse && "md:grid-cols-[1fr_minmax(0,340px)] md:[&>*:first-child]:order-2")}>
                 <div className="mx-auto">
-                  <div className="relative">
-                    <div className="h-72 w-72 rounded-3xl border-4 border-dashed border-navy/40 bg-cream grid place-items-center">
-                      <span className="font-display text-[10rem] text-navy/30 leading-none">{m.initials}</span>
-                    </div>
-                    <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-52 rounded-full border-4 border-gold bg-navy px-4 py-3 text-center shadow-lg">
-                      <span className="font-display italic text-gold text-2xl tracking-wide">{m.first}</span>
-                    </div>
-                  </div>
-                  <div className="mt-10 inline-flex items-center gap-2 rounded-full bg-gold/20 border border-gold/40 px-3 py-1.5 text-xs font-semibold text-navy">
-                    <Camera className="h-3.5 w-3.5" /> Replace with {m.first}'s headshot
-                  </div>
+                  <img src={m.photo} alt={`${m.first} - Hydro Hive crew`} className="h-80 w-auto object-contain" />
                 </div>
 
                 <div>

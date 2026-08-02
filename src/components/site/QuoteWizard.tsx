@@ -10,6 +10,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { SERVICES, type ServiceSlug } from "@/lib/site";
+import { sendContactEmail } from "@/lib/api";
 
 const ICONS: Record<ServiceSlug, typeof Home> = {
   residential: Home,
@@ -41,6 +42,7 @@ export function QuoteWizard({ initialService }: { initialService?: ServiceSlug }
   const [notes, setNotes] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [done, setDone] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const toggleAddon = (v: string) =>
     setAddons((a) => (a.includes(v) ? a.filter((x) => x !== v) : [...a, v]));
@@ -65,12 +67,37 @@ export function QuoteWizard({ initialService }: { initialService?: ServiceSlug }
   const next = () => canNext() && setStep((s) => Math.min(STEPS.length - 1, s + 1));
   const back = () => setStep((s) => Math.max(0, s - 1));
 
-  const submit = () => {
-    const payload = { service, size, stories, addons, name, email, phone, address, preferred, notes };
-    // TODO: connect form submission to backend / CRM (Supabase, email service, or getquotepage.com integration).
-    console.log("[Hydro Hive quote submission]", payload);
-    toast.success("Thanks! We'll get back to you within 24 hours.");
-    setDone(true);
+  const submit = async () => {
+    const serviceName = SERVICES.find((s) => s.slug === service)?.name ?? service ?? "Unspecified";
+    const content = [
+      `Service: ${serviceName}`,
+      `Property size: ${size}`,
+      `Stories: ${stories}`,
+      addons.length ? `Add-ons: ${addons.join(", ")}` : null,
+      `Property address: ${address}`,
+      `Preferred contact: ${preferred}`,
+      notes ? `Notes: ${notes}` : null,
+    ]
+      .filter(Boolean)
+      .join("\n");
+
+    setIsSubmitting(true);
+    try {
+      await sendContactEmail({
+        name,
+        email,
+        number: phone,
+        subject: `Hydro Hive - New Quote Request (${serviceName})`,
+        content,
+      });
+      toast.success("Thanks! We'll get back to you within 24 hours.");
+      setDone(true);
+    } catch (err) {
+      console.error("Failed to send quote request:", err);
+      toast.error("Something went wrong sending your request — please call or text us instead.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (done) {
@@ -91,7 +118,7 @@ export function QuoteWizard({ initialService }: { initialService?: ServiceSlug }
             setService(undefined);
           }}
           variant="outline"
-          className="mt-6 rounded-full"
+          className="mt-6 rounded-full text-navy"
         >
           Submit another
         </Button>
@@ -221,17 +248,17 @@ export function QuoteWizard({ initialService }: { initialService?: ServiceSlug }
       {step === 2 && (
         <StepShell title="How can we reach you?" subtitle="Your info stays with the Hive. We'll never share it.">
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Name" error={errors.name}>
-              <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Jane Smith" />
+            <Field label="Name" htmlFor="wizard-name" error={errors.name}>
+              <Input id="wizard-name" name="name" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Jane Smith" />
             </Field>
-            <Field label="Phone" error={errors.phone}>
-              <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="(843) 555-0123" />
+            <Field label="Phone" htmlFor="wizard-phone" error={errors.phone}>
+              <Input id="wizard-phone" name="phone" autoComplete="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="(843) 555-0123" />
             </Field>
-            <Field label="Email" error={errors.email} className="sm:col-span-2">
-              <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
+            <Field label="Email" htmlFor="wizard-email" error={errors.email} className="sm:col-span-2">
+              <Input id="wizard-email" name="email" autoComplete="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
             </Field>
-            <Field label="Property address" error={errors.address} className="sm:col-span-2">
-              <Input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="123 King St, Charleston, SC" />
+            <Field label="Property address" htmlFor="wizard-address" error={errors.address} className="sm:col-span-2">
+              <Input id="wizard-address" name="address" autoComplete="street-address" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="123 King St, Charleston, SC" />
             </Field>
           </div>
         </StepShell>
@@ -291,8 +318,12 @@ export function QuoteWizard({ initialService }: { initialService?: ServiceSlug }
             Continue <ArrowRight className="h-4 w-4 ml-1" />
           </Button>
         ) : (
-          <Button onClick={submit} className="rounded-full bg-gold text-navy hover:bg-gold/90 h-11 px-6 font-semibold">
-            Send my estimate request
+          <Button
+            onClick={submit}
+            disabled={isSubmitting}
+            className="rounded-full bg-gold text-navy hover:bg-gold/90 h-11 px-6 font-semibold disabled:opacity-70"
+          >
+            {isSubmitting ? "Sending..." : "Send my estimate request"}
           </Button>
         )}
       </div>
@@ -312,18 +343,20 @@ function StepShell({ title, subtitle, children }: { title: string; subtitle: str
 
 function Field({
   label,
+  htmlFor,
   error,
   children,
   className,
 }: {
   label: string;
+  htmlFor?: string;
   error?: string;
   children: ReactNode;
   className?: string;
 }) {
   return (
     <div className={className}>
-      <Label className="text-sm font-semibold text-navy">{label}</Label>
+      <Label htmlFor={htmlFor} className="text-sm font-semibold text-navy">{label}</Label>
       <div className="mt-1.5">{children}</div>
       {error && <p className="mt-1 text-xs text-destructive">{error}</p>}
     </div>
