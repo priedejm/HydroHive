@@ -1,4 +1,5 @@
-import { LOCATIONS, SITE, type ServiceSlug } from "@/lib/site";
+import type { ServiceSlug } from "@/lib/site";
+import { DEFAULT_CONTENT } from "@/lib/content/defaults";
 
 /**
  * Structured data helpers.
@@ -8,7 +9,16 @@ import { LOCATIONS, SITE, type ServiceSlug } from "@/lib/site";
  * itself on its own site as "self-serving reviews," which are against
  * their review-snippet policy. The on-page ReviewsSection shows real
  * Google reviews to visitors, it's just not marked up for rich results.
+ *
+ * This runs at route-module load time (inside each route's `head()`),
+ * before any component has rendered - so it reads from DEFAULT_CONTENT
+ * (the build-time snapshot) rather than the live-fetched admin content.
+ * Same limitation as the <head> meta tags: this SPA has no SSR, so
+ * search/social crawlers were already only seeing build-time content.
  */
+
+const SITE = DEFAULT_CONTENT.site;
+const LOCATIONS = DEFAULT_CONTENT.locations;
 
 const absoluteUrl = (path: string) => `${SITE.domain}${path}`;
 

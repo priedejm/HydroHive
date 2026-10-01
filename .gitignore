@@ -14,6 +14,9 @@ build
 .env.local
 .env.*.local
 
+# HydroHive admin API secrets (real DB creds, created directly on the server)
+api/config.php
+
 # Logs
 logs
 *.log

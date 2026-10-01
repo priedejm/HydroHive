@@ -9,7 +9,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
-import { SERVICES, type ServiceSlug } from "@/lib/site";
+import type { ServiceSlug } from "@/lib/site";
+import { useServices } from "@/lib/content/hooks";
 import { sendContactEmail } from "@/lib/api";
 
 const ICONS: Record<ServiceSlug, typeof Home> = {
@@ -29,6 +30,7 @@ const contactSchema = z.object({
 const STEPS = ["Service", "Property", "Contact", "Review"] as const;
 
 export function QuoteWizard({ initialService }: { initialService?: ServiceSlug }) {
+  const services = useServices();
   const [step, setStep] = useState(0);
   const [service, setService] = useState<ServiceSlug | undefined>(initialService);
   const [size, setSize] = useState<string>("");
@@ -68,7 +70,7 @@ export function QuoteWizard({ initialService }: { initialService?: ServiceSlug }
   const back = () => setStep((s) => Math.max(0, s - 1));
 
   const submit = async () => {
-    const serviceName = SERVICES.find((s) => s.slug === service)?.name ?? service ?? "Unspecified";
+    const serviceName = services.find((s) => s.slug === service)?.name ?? service ?? "Unspecified";
     const content = [
       `Service: ${serviceName}`,
       `Property size: ${size}`,
@@ -132,12 +134,7 @@ export function QuoteWizard({ initialService }: { initialService?: ServiceSlug }
       <ol className="flex items-center gap-2 mb-8">
         {STEPS.map((label, i) => (
           <li key={label} className="flex items-center gap-2 flex-1">
-            <div
-              className={cn(
-                "h-2 flex-1 rounded-full",
-                i <= step ? "bg-gold" : "bg-muted",
-              )}
-            />
+            <div className={cn("h-2 flex-1 rounded-full", i <= step ? "bg-gold" : "bg-muted")} />
             <span
               className={cn(
                 "hidden sm:inline text-xs font-semibold whitespace-nowrap",
@@ -151,9 +148,12 @@ export function QuoteWizard({ initialService }: { initialService?: ServiceSlug }
       </ol>
 
       {step === 0 && (
-        <StepShell title="What can we clean for you?" subtitle="Pick the service closest to what you need - you can add details in a moment.">
+        <StepShell
+          title="What can we clean for you?"
+          subtitle="Pick the service closest to what you need - you can add details in a moment."
+        >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {SERVICES.map((s) => {
+            {services.map((s) => {
               const Icon = ICONS[s.slug];
               const active = service === s.slug;
               return (
@@ -168,11 +168,21 @@ export function QuoteWizard({ initialService }: { initialService?: ServiceSlug }
                       : "border-border bg-card hover:border-navy/40",
                   )}
                 >
-                  <div className={cn("h-10 w-10 rounded-xl grid place-items-center", active ? "bg-gold text-navy" : "bg-cream text-navy")}>
+                  <div
+                    className={cn(
+                      "h-10 w-10 rounded-xl grid place-items-center",
+                      active ? "bg-gold text-navy" : "bg-cream text-navy",
+                    )}
+                  >
                     <Icon className="h-5 w-5" />
                   </div>
                   <div className="mt-3 font-display text-lg">{s.name}</div>
-                  <div className={cn("mt-1 text-sm", active ? "text-primary-foreground/80" : "text-muted-foreground")}>
+                  <div
+                    className={cn(
+                      "mt-1 text-sm",
+                      active ? "text-primary-foreground/80" : "text-muted-foreground",
+                    )}
+                  >
                     {s.short}
                   </div>
                 </button>
@@ -183,17 +193,31 @@ export function QuoteWizard({ initialService }: { initialService?: ServiceSlug }
       )}
 
       {step === 1 && (
-        <StepShell title="Tell us about the property" subtitle="Rough numbers are fine - we'll confirm on-site.">
+        <StepShell
+          title="Tell us about the property"
+          subtitle="Rough numbers are fine - we'll confirm on-site."
+        >
           <div className="space-y-6">
             <div>
               <Label className="text-sm font-semibold text-navy">Approximate size</Label>
-              <RadioGroup value={size} onValueChange={setSize} className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-2">
-                {["Under 1,500 sq ft", "1,500–3,000 sq ft", "3,000–5,000 sq ft", "5,000+ sq ft"].map((v) => (
+              <RadioGroup
+                value={size}
+                onValueChange={setSize}
+                className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-2"
+              >
+                {[
+                  "Under 1,500 sq ft",
+                  "1,500–3,000 sq ft",
+                  "3,000–5,000 sq ft",
+                  "5,000+ sq ft",
+                ].map((v) => (
                   <label
                     key={v}
                     className={cn(
                       "cursor-pointer rounded-xl border-2 p-3 text-center text-sm font-medium transition-all",
-                      size === v ? "border-navy bg-navy text-primary-foreground" : "border-border hover:border-navy/40",
+                      size === v
+                        ? "border-navy bg-navy text-primary-foreground"
+                        : "border-border hover:border-navy/40",
                     )}
                   >
                     <RadioGroupItem value={v} className="sr-only" />
@@ -205,13 +229,19 @@ export function QuoteWizard({ initialService }: { initialService?: ServiceSlug }
 
             <div>
               <Label className="text-sm font-semibold text-navy">Stories</Label>
-              <RadioGroup value={stories} onValueChange={setStories} className="mt-3 flex flex-wrap gap-2">
+              <RadioGroup
+                value={stories}
+                onValueChange={setStories}
+                className="mt-3 flex flex-wrap gap-2"
+              >
                 {["1", "2", "3+"].map((v) => (
                   <label
                     key={v}
                     className={cn(
                       "cursor-pointer rounded-full border-2 px-5 py-2 text-sm font-medium",
-                      stories === v ? "border-navy bg-navy text-primary-foreground" : "border-border hover:border-navy/40",
+                      stories === v
+                        ? "border-navy bg-navy text-primary-foreground"
+                        : "border-border hover:border-navy/40",
                     )}
                   >
                     <RadioGroupItem value={v} className="sr-only" />
@@ -224,17 +254,29 @@ export function QuoteWizard({ initialService }: { initialService?: ServiceSlug }
             <div>
               <Label className="text-sm font-semibold text-navy">Add-ons</Label>
               <div className="mt-3 flex flex-wrap gap-2">
-                {["Windows", "Gutter brightening", "Roof soft wash", "Dock/deck", "Drone reach"].map((v) => {
+                {[
+                  "Windows",
+                  "Gutter brightening",
+                  "Roof soft wash",
+                  "Dock/deck",
+                  "Drone reach",
+                ].map((v) => {
                   const active = addons.includes(v);
                   return (
                     <label
                       key={v}
                       className={cn(
                         "cursor-pointer inline-flex items-center gap-2 rounded-full border-2 px-4 py-2 text-sm font-medium",
-                        active ? "border-navy bg-navy text-primary-foreground" : "border-border hover:border-navy/40",
+                        active
+                          ? "border-navy bg-navy text-primary-foreground"
+                          : "border-border hover:border-navy/40",
                       )}
                     >
-                      <Checkbox checked={active} onCheckedChange={() => toggleAddon(v)} className="sr-only" />
+                      <Checkbox
+                        checked={active}
+                        onCheckedChange={() => toggleAddon(v)}
+                        className="sr-only"
+                      />
                       {v}
                     </label>
                   );
@@ -246,30 +288,79 @@ export function QuoteWizard({ initialService }: { initialService?: ServiceSlug }
       )}
 
       {step === 2 && (
-        <StepShell title="How can we reach you?" subtitle="Your info stays with the Hive. We'll never share it.">
+        <StepShell
+          title="How can we reach you?"
+          subtitle="Your info stays with the Hive. We'll never share it."
+        >
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Name" htmlFor="wizard-name" error={errors.name}>
-              <Input id="wizard-name" name="name" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Jane Smith" />
+              <Input
+                id="wizard-name"
+                name="name"
+                autoComplete="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Jane Smith"
+              />
             </Field>
             <Field label="Phone" htmlFor="wizard-phone" error={errors.phone}>
-              <Input id="wizard-phone" name="phone" autoComplete="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="(843) 555-0123" />
+              <Input
+                id="wizard-phone"
+                name="phone"
+                autoComplete="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="(843) 555-0123"
+              />
             </Field>
-            <Field label="Email" htmlFor="wizard-email" error={errors.email} className="sm:col-span-2">
-              <Input id="wizard-email" name="email" autoComplete="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
+            <Field
+              label="Email"
+              htmlFor="wizard-email"
+              error={errors.email}
+              className="sm:col-span-2"
+            >
+              <Input
+                id="wizard-email"
+                name="email"
+                autoComplete="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com"
+              />
             </Field>
-            <Field label="Property address" htmlFor="wizard-address" error={errors.address} className="sm:col-span-2">
-              <Input id="wizard-address" name="address" autoComplete="street-address" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="123 King St, Charleston, SC" />
+            <Field
+              label="Property address"
+              htmlFor="wizard-address"
+              error={errors.address}
+              className="sm:col-span-2"
+            >
+              <Input
+                id="wizard-address"
+                name="address"
+                autoComplete="street-address"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder="123 King St, Charleston, SC"
+              />
             </Field>
           </div>
         </StepShell>
       )}
 
       {step === 3 && (
-        <StepShell title="Anything else?" subtitle="Optional notes, gate codes, timing preferences.">
+        <StepShell
+          title="Anything else?"
+          subtitle="Optional notes, gate codes, timing preferences."
+        >
           <div className="space-y-4">
             <div>
               <Label className="text-sm font-semibold text-navy">Preferred contact method</Label>
-              <RadioGroup value={preferred} onValueChange={setPreferred} className="mt-3 flex flex-wrap gap-2">
+              <RadioGroup
+                value={preferred}
+                onValueChange={setPreferred}
+                className="mt-3 flex flex-wrap gap-2"
+              >
                 {[
                   { v: "email", l: "Email" },
                   { v: "phone", l: "Phone call" },
@@ -279,7 +370,9 @@ export function QuoteWizard({ initialService }: { initialService?: ServiceSlug }
                     key={v}
                     className={cn(
                       "cursor-pointer rounded-full border-2 px-5 py-2 text-sm font-medium",
-                      preferred === v ? "border-navy bg-navy text-primary-foreground" : "border-border hover:border-navy/40",
+                      preferred === v
+                        ? "border-navy bg-navy text-primary-foreground"
+                        : "border-border hover:border-navy/40",
                     )}
                   >
                     <RadioGroupItem value={v} className="sr-only" />
@@ -314,7 +407,10 @@ export function QuoteWizard({ initialService }: { initialService?: ServiceSlug }
         </Button>
 
         {step < STEPS.length - 1 ? (
-          <Button onClick={next} className="rounded-full bg-cta text-cta-foreground hover:bg-cta/90 h-11 px-6 font-semibold">
+          <Button
+            onClick={next}
+            className="rounded-full bg-cta text-cta-foreground hover:bg-cta/90 h-11 px-6 font-semibold"
+          >
             Continue <ArrowRight className="h-4 w-4 ml-1" />
           </Button>
         ) : (
@@ -331,7 +427,15 @@ export function QuoteWizard({ initialService }: { initialService?: ServiceSlug }
   );
 }
 
-function StepShell({ title, subtitle, children }: { title: string; subtitle: string; children: ReactNode }) {
+function StepShell({
+  title,
+  subtitle,
+  children,
+}: {
+  title: string;
+  subtitle: string;
+  children: ReactNode;
+}) {
   return (
     <div>
       <h3 className="font-display text-2xl sm:text-3xl text-navy">{title}</h3>
@@ -356,7 +460,9 @@ function Field({
 }) {
   return (
     <div className={className}>
-      <Label htmlFor={htmlFor} className="text-sm font-semibold text-navy">{label}</Label>
+      <Label htmlFor={htmlFor} className="text-sm font-semibold text-navy">
+        {label}
+      </Label>
       <div className="mt-1.5">{children}</div>
       {error && <p className="mt-1 text-xs text-destructive">{error}</p>}
     </div>

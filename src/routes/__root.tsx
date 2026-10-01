@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
 } from "@tanstack/react-router";
 import { useEffect } from "react";
@@ -13,6 +14,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { buildLocalBusinessSchema, jsonLdScript } from "@/lib/schema";
+import { useSeo } from "@/lib/content/hooks";
 
 function NotFoundComponent() {
   return (
@@ -98,19 +100,44 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   errorComponent: ErrorComponent,
 });
 
+// This SPA has no SSR, so search/social crawlers only ever see the static
+// per-route head() strings baked in at build time - making those dynamic
+// wouldn't reach crawlers anyway. This effect instead keeps the browser tab
+// title/description in sync with admin-edited SEO content once it loads,
+// which is what a human visitor (and Google's JS-rendering crawler) sees.
+function SeoSync() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const seo = useSeo(pathname);
+
+  useEffect(() => {
+    if (!seo) return;
+    document.title = seo.title;
+    document.querySelector('meta[name="description"]')?.setAttribute("content", seo.description);
+  }, [seo]);
+
+  return null;
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isAdmin = pathname.startsWith("/admin");
 
   return (
     <QueryClientProvider client={queryClient}>
       <HeadContent />
-      <div className="flex min-h-screen flex-col bg-background">
-        <Header />
-        <main className="flex-1">
-          <Outlet />
-        </main>
-        <Footer />
-      </div>
+      {isAdmin ? (
+        <Outlet />
+      ) : (
+        <div className="flex min-h-screen flex-col bg-background">
+          <SeoSync />
+          <Header />
+          <main className="flex-1">
+            <Outlet />
+          </main>
+          <Footer />
+        </div>
+      )}
       <Toaster richColors position="top-center" />
     </QueryClientProvider>
   );

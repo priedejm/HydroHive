@@ -3,7 +3,8 @@ import { z } from "zod";
 import { Mail, Phone, MapPin, ShieldCheck, Star } from "lucide-react";
 import { SectionReveal } from "@/components/site/SectionReveal";
 import { QuoteWizard } from "@/components/site/QuoteWizard";
-import { SITE, type ServiceSlug } from "@/lib/site";
+import type { ServiceSlug } from "@/lib/site";
+import { useSite } from "@/lib/content/hooks";
 
 const searchSchema = z.object({
   service: z.enum(["residential", "commercial", "dock", "drone-cleaning"]).optional(),
@@ -20,7 +21,10 @@ export const Route = createFileRoute("/contact")({
           "Request a free exterior cleaning estimate in Charleston, SC. Residential, commercial, dock, and drone quotes in under a minute.",
       },
       { property: "og:title", content: "Get a Free Estimate · Hydro Hive" },
-      { property: "og:description", content: "Free estimates from Charleston's locally owned exterior cleaning crew." },
+      {
+        property: "og:description",
+        content: "Free estimates from Charleston's locally owned exterior cleaning crew.",
+      },
       { property: "og:url", content: "/contact" },
     ],
     links: [{ rel: "canonical", href: "/contact" }],
@@ -31,13 +35,16 @@ export const Route = createFileRoute("/contact")({
 function ContactPage() {
   const search = Route.useSearch();
   const initial = search.service as ServiceSlug | undefined;
+  const site = useSite();
 
   return (
     <div>
       <section className="bg-navy text-primary-foreground">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 text-center">
           <SectionReveal>
-            <span className="text-xs font-bold uppercase tracking-widest text-gold">Free estimate</span>
+            <span className="text-xs font-bold uppercase tracking-widest text-gold">
+              Free estimate
+            </span>
             <h1 className="mt-3 font-display text-5xl sm:text-6xl">Let's get you a quote.</h1>
             <p className="mt-4 max-w-2xl mx-auto text-primary-foreground/80">
               Four quick steps. We'll follow up within 24 hours with a real number - no pressure.
@@ -57,17 +64,23 @@ function ContactPage() {
               <h3 className="font-display text-xl text-navy">Prefer to reach out directly?</h3>
               <ul className="mt-4 space-y-3 text-sm">
                 <li>
-                  <a href={`mailto:${SITE.email}`} className="inline-flex items-center gap-2 text-navy hover:text-gold">
-                    <Mail className="h-4 w-4" /> {SITE.email}
+                  <a
+                    href={`mailto:${site.email}`}
+                    className="inline-flex items-center gap-2 text-navy hover:text-gold"
+                  >
+                    <Mail className="h-4 w-4" /> {site.email}
                   </a>
                 </li>
                 <li>
-                  <a href={SITE.phoneHref} className="inline-flex items-center gap-2 text-navy hover:text-gold">
-                    <Phone className="h-4 w-4" /> {SITE.phone}
+                  <a
+                    href={site.phoneHref}
+                    className="inline-flex items-center gap-2 text-navy hover:text-gold"
+                  >
+                    <Phone className="h-4 w-4" /> {site.phone}
                   </a>
                 </li>
                 <li className="inline-flex items-center gap-2 text-navy">
-                  <MapPin className="h-4 w-4" /> Serving {SITE.city} and the Lowcountry
+                  <MapPin className="h-4 w-4" /> Serving {site.city} and the Lowcountry
                 </li>
               </ul>
             </div>
@@ -88,7 +101,8 @@ function ContactPage() {
                 <span className="font-display text-lg">Locally Owned</span>
               </div>
               <p className="mt-2 text-sm text-navy/85">
-                Charleston-based, fully insured, and small on purpose. Your job doesn't get pawned off to a stranger.
+                Charleston-based, fully insured, and small on purpose. Your job doesn't get pawned
+                off to a stranger.
               </p>
               <div className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-white/70 px-3 py-1.5 text-xs font-semibold text-navy">
                 <Star className="h-3.5 w-3.5 fill-navy" /> 5.0 on Google

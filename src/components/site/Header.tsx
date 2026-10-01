@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import logo from "@/assets/hydro-hive-logo.svg";
-import { NAV, SITE, SERVICES, LOCATIONS } from "@/lib/site";
+import { NAV, getServicePath, getLocationPath } from "@/lib/site";
+import { useServices, useLocations, useSite } from "@/lib/content/hooks";
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -13,6 +14,9 @@ export function Header() {
   const [servicesOpen, setServicesOpen] = useState(false);
   const [areasOpen, setAreasOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const services = useServices();
+  const locations = useLocations();
+  const site = useSite();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -53,7 +57,7 @@ export function Header() {
                     to={item.to}
                     className={cn(
                       "inline-flex items-center gap-1 rounded-full px-4 py-2 text-sm font-semibold text-navy transition-colors hover:bg-navy/5",
-                      SERVICES.some((s) => pathname === s.path) && "bg-navy/5",
+                      services.some((s) => pathname === getServicePath(s.slug)) && "bg-navy/5",
                     )}
                     activeProps={{ className: "bg-navy/5" }}
                   >
@@ -63,10 +67,10 @@ export function Header() {
                   {servicesOpen && (
                     <div className="absolute left-1/2 top-full -translate-x-1/2 pt-2">
                       <div className="min-w-[220px] rounded-2xl border border-border bg-card p-2 shadow-xl">
-                        {SERVICES.map((s) => (
+                        {services.map((s) => (
                           <Link
                             key={s.slug}
-                            to={s.path}
+                            to={getServicePath(s.slug)}
                             className="block rounded-xl px-3 py-2 text-sm font-medium text-navy hover:bg-navy/5"
                           >
                             {s.name}
@@ -91,7 +95,7 @@ export function Header() {
                     to={item.to}
                     className={cn(
                       "inline-flex items-center gap-1 rounded-full px-4 py-2 text-sm font-semibold text-navy transition-colors hover:bg-navy/5",
-                      LOCATIONS.some((l) => pathname === l.path) && "bg-navy/5",
+                      locations.some((l) => pathname === getLocationPath(l.slug)) && "bg-navy/5",
                     )}
                     activeProps={{ className: "bg-navy/5" }}
                   >
@@ -101,10 +105,10 @@ export function Header() {
                   {areasOpen && (
                     <div className="absolute left-1/2 top-full -translate-x-1/2 pt-2">
                       <div className="min-w-[220px] rounded-2xl border border-border bg-card p-2 shadow-xl">
-                        {LOCATIONS.map((l) => (
+                        {locations.map((l) => (
                           <Link
                             key={l.slug}
-                            to={l.path}
+                            to={getLocationPath(l.slug)}
                             className="block rounded-xl px-3 py-2 text-sm font-medium text-navy hover:bg-navy/5"
                           >
                             {l.name}
@@ -135,7 +139,7 @@ export function Header() {
 
         <div className="flex items-center gap-2 justify-end shrink-0">
           <a
-            href={SITE.instagram}
+            href={site.instagram}
             target="_blank"
             rel="noreferrer"
             aria-label="Instagram"
@@ -189,10 +193,10 @@ export function Header() {
                   <div className="px-4 py-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     Services
                   </div>
-                  {SERVICES.map((s) => (
+                  {services.map((s) => (
                     <Link
                       key={s.slug}
-                      to={s.path}
+                      to={getServicePath(s.slug)}
                       className="block rounded-xl px-4 py-2.5 text-sm text-navy hover:bg-navy/5"
                     >
                       {s.name}
@@ -203,10 +207,10 @@ export function Header() {
                   <div className="px-4 py-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     Service Areas
                   </div>
-                  {LOCATIONS.map((l) => (
+                  {locations.map((l) => (
                     <Link
                       key={l.slug}
-                      to={l.path}
+                      to={getLocationPath(l.slug)}
                       className="block rounded-xl px-4 py-2.5 text-sm text-navy hover:bg-navy/5"
                     >
                       {l.name}
@@ -220,7 +224,7 @@ export function Header() {
                   <Link to="/contact">Get a Free Estimate</Link>
                 </Button>
                 <a
-                  href={SITE.instagram}
+                  href={site.instagram}
                   target="_blank"
                   rel="noreferrer"
                   className="mt-4 inline-flex items-center justify-center gap-2 rounded-full border border-border py-3 text-sm font-medium text-navy"

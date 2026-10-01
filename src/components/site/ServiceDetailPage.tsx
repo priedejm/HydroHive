@@ -1,15 +1,22 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Check, ChevronRight, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { SectionReveal } from "@/components/site/SectionReveal";
-import { SERVICE_CONTENT } from "@/lib/service-content";
-import { LOCATIONS, SITE, getService, type ServiceSlug } from "@/lib/site";
+import { getLocationPath, type ServiceSlug } from "@/lib/site";
+import { useService, useServiceContent, useLocations, useSite } from "@/lib/content/hooks";
 import { cn } from "@/lib/utils";
 
 export function ServiceDetailPage({ slug }: { slug: ServiceSlug }) {
-  const service = getService(slug);
-  const content = SERVICE_CONTENT[slug];
+  const service = useService(slug);
+  const content = useServiceContent(slug);
+  const locations = useLocations();
+  const site = useSite();
   const isDrone = slug === "drone-cleaning";
 
   return (
@@ -17,10 +24,17 @@ export function ServiceDetailPage({ slug }: { slug: ServiceSlug }) {
       <section className="bg-navy text-primary-foreground">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
           <SectionReveal>
-            <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-primary-foreground/60">
-              <Link to="/" className="hover:text-gold">Home</Link>
+            <nav
+              aria-label="Breadcrumb"
+              className="flex items-center gap-1.5 text-xs text-primary-foreground/60"
+            >
+              <Link to="/" className="hover:text-gold">
+                Home
+              </Link>
               <ChevronRight className="h-3 w-3" />
-              <Link to="/services" className="hover:text-gold">Services</Link>
+              <Link to="/services" className="hover:text-gold">
+                Services
+              </Link>
               <ChevronRight className="h-3 w-3" />
               <span className="text-primary-foreground/85">{service.name}</span>
             </nav>
@@ -41,10 +55,10 @@ export function ServiceDetailPage({ slug }: { slug: ServiceSlug }) {
                 </Link>
               </Button>
               <a
-                href={SITE.phoneHref}
+                href={site.phoneHref}
                 className="inline-flex items-center gap-2 rounded-full border border-primary-foreground/20 px-5 py-3 text-sm font-semibold hover:bg-primary-foreground/10"
               >
-                <Phone className="h-4 w-4 text-gold" /> {SITE.phone}
+                <Phone className="h-4 w-4 text-gold" /> {site.phone}
               </a>
             </div>
           </SectionReveal>
@@ -56,12 +70,22 @@ export function ServiceDetailPage({ slug }: { slug: ServiceSlug }) {
           <div className="grid gap-10 items-center md:grid-cols-2">
             <SectionReveal>
               <div className="overflow-hidden rounded-3xl shadow-lg border-4 border-white">
-                <img src={content.image} alt={`${service.name} exterior cleaning`} className="w-full aspect-[4/3] object-cover" />
+                <img
+                  src={content.image}
+                  alt={`${service.name} exterior cleaning`}
+                  className="w-full aspect-[4/3] object-cover"
+                />
               </div>
             </SectionReveal>
             <SectionReveal delay={100}>
-              <h2 className={cn("font-display text-3xl sm:text-4xl", "text-navy")}>What's included</h2>
-              <p className={cn("mt-4 text-base", isDrone ? "text-navy/85" : "text-muted-foreground")}>{service.long}</p>
+              <h2 className={cn("font-display text-3xl sm:text-4xl", "text-navy")}>
+                What's included
+              </h2>
+              <p
+                className={cn("mt-4 text-base", isDrone ? "text-navy/85" : "text-muted-foreground")}
+              >
+                {service.long}
+              </p>
               <ul className="mt-6 grid gap-2 sm:grid-cols-2">
                 {content.bullets.map((b) => (
                   <li key={b} className="flex items-start gap-2 text-sm text-navy">
@@ -78,10 +102,15 @@ export function ServiceDetailPage({ slug }: { slug: ServiceSlug }) {
 
         {content.gallery && content.gallery.length > 0 && (
           <SectionReveal className="mt-14">
-            <h2 className="font-display text-3xl text-navy">Recent {service.name.toLowerCase()} work</h2>
+            <h2 className="font-display text-3xl text-navy">
+              Recent {service.name.toLowerCase()} work
+            </h2>
             <div className="mt-6 grid gap-6 sm:grid-cols-3">
               {content.gallery.map((g) => (
-                <div key={g.src} className="overflow-hidden rounded-2xl shadow-sm border border-border">
+                <div
+                  key={g.src}
+                  className="overflow-hidden rounded-2xl shadow-sm border border-border"
+                >
                   <img src={g.src} alt={g.alt} className="w-full aspect-[3/4] object-cover" />
                 </div>
               ))}
@@ -91,15 +120,18 @@ export function ServiceDetailPage({ slug }: { slug: ServiceSlug }) {
 
         {/* Service areas internal linking */}
         <SectionReveal className="mt-20">
-          <h2 className="font-display text-3xl text-navy">Serving {service.name.toLowerCase()} clients across the Lowcountry</h2>
+          <h2 className="font-display text-3xl text-navy">
+            Serving {service.name.toLowerCase()} clients across the Lowcountry
+          </h2>
           <p className="mt-3 max-w-2xl text-muted-foreground">
-            We bring {service.name.toLowerCase()} cleaning to these Charleston-area communities and beyond.
+            We bring {service.name.toLowerCase()} cleaning to these Charleston-area communities and
+            beyond.
           </p>
           <div className="mt-6 flex flex-wrap gap-2">
-            {LOCATIONS.map((l) => (
+            {locations.map((l) => (
               <Link
                 key={l.slug}
-                to={l.path}
+                to={getLocationPath(l.slug)}
                 className="rounded-full border border-border bg-card px-4 py-2 text-sm font-semibold text-navy hover:border-navy/40 hover:bg-navy/5 transition-colors"
               >
                 {l.name}
@@ -114,7 +146,9 @@ export function ServiceDetailPage({ slug }: { slug: ServiceSlug }) {
           <Accordion type="single" collapsible className="mt-6">
             {content.faqs.map((f, i) => (
               <AccordionItem key={i} value={`faq-${i}`}>
-                <AccordionTrigger className="font-display text-lg text-navy">{f.q}</AccordionTrigger>
+                <AccordionTrigger className="font-display text-lg text-navy">
+                  {f.q}
+                </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground">{f.a}</AccordionContent>
               </AccordionItem>
             ))}
@@ -125,8 +159,12 @@ export function ServiceDetailPage({ slug }: { slug: ServiceSlug }) {
       <section className="bg-navy text-primary-foreground">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 text-center">
           <SectionReveal>
-            <h2 className="font-display text-4xl sm:text-5xl">Ready for {service.name.toLowerCase()} that's done right?</h2>
-            <p className="mt-3 text-primary-foreground/75">Free estimates. Fast quotes. Fully insured.</p>
+            <h2 className="font-display text-4xl sm:text-5xl">
+              Ready for {service.name.toLowerCase()} that's done right?
+            </h2>
+            <p className="mt-3 text-primary-foreground/75">
+              Free estimates. Fast quotes. Fully insured.
+            </p>
             <Button
               asChild
               className="mt-7 rounded-full bg-gold text-navy hover:bg-gold/90 h-12 px-8 font-semibold"

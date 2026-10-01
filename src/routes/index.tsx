@@ -6,17 +6,8 @@ import { BeforeAfterSlider } from "@/components/site/BeforeAfterSlider";
 import { TrustStrip } from "@/components/site/TrustStrip";
 import { ReviewsSection } from "@/components/site/ReviewsSection";
 import { HeroEstimateForm } from "@/components/site/HeroEstimateForm";
-import { SERVICES, SITE } from "@/lib/site";
-import powerWashingSideofHouse from "@/assets/powerWashingSideofHouse.jpg";
-import dronFlying2 from "@/assets/dronFlying2.jpeg";
-import dock from "@/assets/dockFinal.png";
-import aptCommercial2 from "@/assets/aptCommercial2.jpeg";
-import before1 from "@/assets/before1.jpeg";
-import after1 from "@/assets/after1.jpeg";
-import before3 from "@/assets/before3.webp";
-import after3 from "@/assets/after3.webp";
-import before4 from "@/assets/before4.webp";
-import after4 from "@/assets/after4.jpeg";
+import { getServicePath } from "@/lib/site";
+import { useServices, useHomeContent, useGalleryContent } from "@/lib/content/hooks";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -30,8 +21,7 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: "Hydro Hive · Charleston Exterior Cleaning" },
       {
         property: "og:description",
-        content:
-          "Soft wash, pressure wash, windows, docks, drone. Locally owned. Charleston, SC.",
+        content: "Soft wash, pressure wash, windows, docks, drone. Locally owned. Charleston, SC.",
       },
       { property: "og:url", content: "/" },
     ],
@@ -40,18 +30,19 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 
-const RES_IMG = powerWashingSideofHouse;
-const COM_IMG = aptCommercial2;
-const DOCK_IMG = dock;
-const DRONE_IMG = dronFlying2;
-
 function Home() {
-  const teasers = SERVICES.filter((s) => s.slug !== "drone-cleaning");
+  const services = useServices();
+  const home = useHomeContent();
+  const gallery = useGalleryContent();
+  const teasers = services.filter((s) => s.slug !== "drone-cleaning");
   const teaserImgs: Record<string, string> = {
-    residential: RES_IMG,
-    commercial: COM_IMG,
-    dock: DOCK_IMG,
+    residential: home.images.residential,
+    commercial: home.images.commercial,
+    dock: home.images.dock,
   };
+  // Reuses the gallery's first 3 before/after pairs so editing (or adding /
+  // removing) a photo in the gallery admin screen updates this strip too.
+  const beforeAfterPairs = gallery.items.slice(0, 3);
 
   return (
     <div>
@@ -77,23 +68,191 @@ function Home() {
         </svg>
 
         {/* Floating honeycomb bubbles */}
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
+        >
           {[
-            { left: "2%", top: "10%", size: 52, dur: 5.6, delay: -1.4, dx: 34, dy: -18, spin: 42, op: 0.36, tone: "bg-gold/35" },
-            { left: "7%", top: "58%", size: 26, dur: 4.4, delay: -3.1, dx: -18, dy: 16, spin: -65, op: 0.42, tone: "bg-cream/45" },
-            { left: "12%", top: "28%", size: 78, dur: 6.2, delay: -4.6, dx: 28, dy: 24, spin: 28, op: 0.28, tone: "bg-gold/30" },
-            { left: "18%", top: "82%", size: 38, dur: 4.8, delay: -2.2, dx: -24, dy: -20, spin: 74, op: 0.38, tone: "bg-cream/40" },
-            { left: "24%", top: "14%", size: 30, dur: 5.1, delay: -0.8, dx: 20, dy: 18, spin: -52, op: 0.34, tone: "bg-gold/25" },
-            { left: "30%", top: "70%", size: 64, dur: 6.8, delay: -5.5, dx: -36, dy: -22, spin: 36, op: 0.26, tone: "bg-cream/38" },
-            { left: "36%", top: "8%", size: 42, dur: 4.6, delay: -3.8, dx: 26, dy: 26, spin: 68, op: 0.36, tone: "bg-gold/32" },
-            { left: "4%", top: "88%", size: 22, dur: 3.9, delay: -1.9, dx: -18, dy: -16, spin: -80, op: 0.44, tone: "bg-cream/42" },
-            { left: "62%", top: "6%", size: 88, dur: 7.2, delay: -6.2, dx: 38, dy: -24, spin: 30, op: 0.20, tone: "bg-gold/26" },
-            { left: "55%", top: "88%", size: 46, dur: 5, delay: -2.7, dx: -28, dy: 20, spin: -48, op: 0.34, tone: "bg-cream/40" },
-            { left: "72%", top: "78%", size: 28, dur: 4.2, delay: -3.5, dx: 18, dy: -18, spin: 76, op: 0.40, tone: "bg-gold/28" },
-            { left: "88%", top: "12%", size: 70, dur: 6.5, delay: -4.9, dx: -34, dy: 26, spin: -34, op: 0.24, tone: "bg-cream/35" },
-            { left: "94%", top: "58%", size: 34, dur: 4.7, delay: -1.2, dx: 26, dy: -20, spin: 58, op: 0.38, tone: "bg-gold/34" },
-            { left: "80%", top: "90%", size: 58, dur: 5.8, delay: -5.1, dx: -30, dy: 22, spin: 44, op: 0.28, tone: "bg-cream/36" },
-            { left: "96%", top: "82%", size: 24, dur: 4.1, delay: -2.9, dx: 20, dy: -16, spin: -70, op: 0.42, tone: "bg-cream/44" },
+            {
+              left: "2%",
+              top: "10%",
+              size: 52,
+              dur: 5.6,
+              delay: -1.4,
+              dx: 34,
+              dy: -18,
+              spin: 42,
+              op: 0.36,
+              tone: "bg-gold/35",
+            },
+            {
+              left: "7%",
+              top: "58%",
+              size: 26,
+              dur: 4.4,
+              delay: -3.1,
+              dx: -18,
+              dy: 16,
+              spin: -65,
+              op: 0.42,
+              tone: "bg-cream/45",
+            },
+            {
+              left: "12%",
+              top: "28%",
+              size: 78,
+              dur: 6.2,
+              delay: -4.6,
+              dx: 28,
+              dy: 24,
+              spin: 28,
+              op: 0.28,
+              tone: "bg-gold/30",
+            },
+            {
+              left: "18%",
+              top: "82%",
+              size: 38,
+              dur: 4.8,
+              delay: -2.2,
+              dx: -24,
+              dy: -20,
+              spin: 74,
+              op: 0.38,
+              tone: "bg-cream/40",
+            },
+            {
+              left: "24%",
+              top: "14%",
+              size: 30,
+              dur: 5.1,
+              delay: -0.8,
+              dx: 20,
+              dy: 18,
+              spin: -52,
+              op: 0.34,
+              tone: "bg-gold/25",
+            },
+            {
+              left: "30%",
+              top: "70%",
+              size: 64,
+              dur: 6.8,
+              delay: -5.5,
+              dx: -36,
+              dy: -22,
+              spin: 36,
+              op: 0.26,
+              tone: "bg-cream/38",
+            },
+            {
+              left: "36%",
+              top: "8%",
+              size: 42,
+              dur: 4.6,
+              delay: -3.8,
+              dx: 26,
+              dy: 26,
+              spin: 68,
+              op: 0.36,
+              tone: "bg-gold/32",
+            },
+            {
+              left: "4%",
+              top: "88%",
+              size: 22,
+              dur: 3.9,
+              delay: -1.9,
+              dx: -18,
+              dy: -16,
+              spin: -80,
+              op: 0.44,
+              tone: "bg-cream/42",
+            },
+            {
+              left: "62%",
+              top: "6%",
+              size: 88,
+              dur: 7.2,
+              delay: -6.2,
+              dx: 38,
+              dy: -24,
+              spin: 30,
+              op: 0.2,
+              tone: "bg-gold/26",
+            },
+            {
+              left: "55%",
+              top: "88%",
+              size: 46,
+              dur: 5,
+              delay: -2.7,
+              dx: -28,
+              dy: 20,
+              spin: -48,
+              op: 0.34,
+              tone: "bg-cream/40",
+            },
+            {
+              left: "72%",
+              top: "78%",
+              size: 28,
+              dur: 4.2,
+              delay: -3.5,
+              dx: 18,
+              dy: -18,
+              spin: 76,
+              op: 0.4,
+              tone: "bg-gold/28",
+            },
+            {
+              left: "88%",
+              top: "12%",
+              size: 70,
+              dur: 6.5,
+              delay: -4.9,
+              dx: -34,
+              dy: 26,
+              spin: -34,
+              op: 0.24,
+              tone: "bg-cream/35",
+            },
+            {
+              left: "94%",
+              top: "58%",
+              size: 34,
+              dur: 4.7,
+              delay: -1.2,
+              dx: 26,
+              dy: -20,
+              spin: 58,
+              op: 0.38,
+              tone: "bg-gold/34",
+            },
+            {
+              left: "80%",
+              top: "90%",
+              size: 58,
+              dur: 5.8,
+              delay: -5.1,
+              dx: -30,
+              dy: 22,
+              spin: 44,
+              op: 0.28,
+              tone: "bg-cream/36",
+            },
+            {
+              left: "96%",
+              top: "82%",
+              size: 24,
+              dur: 4.1,
+              delay: -2.9,
+              dx: 20,
+              dy: -16,
+              spin: -70,
+              op: 0.42,
+              tone: "bg-cream/44",
+            },
           ].map((b, i) => (
             <div
               key={i}
@@ -121,18 +280,13 @@ function Home() {
             <div className="lg:order-1">
               <SectionReveal delay={80}>
                 <h1 className="mt-6 font-display text-5xl sm:text-7xl lg:text-[5.5rem] leading-[0.9] tracking-tight text-white">
-                  Exterior cleaning,
-                  <span className="block">
-                    done <span className="italic text-gold">right</span>.
-                  </span>
+                  {home.heroHeadlineLine1}
+                  <span className="block">{home.heroHeadlineLine2}</span>
                 </h1>
               </SectionReveal>
 
               <SectionReveal delay={160}>
-                <p className="mt-8 max-w-xl text-lg sm:text-xl text-cream/75">
-                  Soft wash, pressure wash, windows, docks, and drone cleaning across the
-                  Lowcountry - from your front porch to a hundred feet up.
-                </p>
+                <p className="mt-8 max-w-xl text-lg sm:text-xl text-cream/75">{home.heroSub}</p>
               </SectionReveal>
 
               <SectionReveal delay={220}>
@@ -158,11 +312,7 @@ function Home() {
               {/* Stat row */}
               <SectionReveal delay={320}>
                 <dl className="mt-16 grid max-w-2xl grid-cols-3 gap-6 border-t border-cream/10 pt-8">
-                  {[
-                    { k: "100+ ft", v: "Drone reach" },
-                    { k: "Soft-wash", v: "Safe on siding" },
-                    { k: "5★", v: "Lowcountry-rated" },
-                  ].map((s) => (
+                  {home.statRow.map((s) => (
                     <div key={s.v}>
                       <dt className="font-display text-2xl sm:text-3xl text-white">{s.k}</dt>
                       <dd className="mt-1 text-xs sm:text-sm uppercase tracking-wider text-cream/60">
@@ -184,7 +334,6 @@ function Home() {
             </SectionReveal>
           </div>
         </div>
-
       </section>
 
       <TrustStrip />
@@ -192,18 +341,20 @@ function Home() {
       {/* SERVICE TEASERS */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20">
         <SectionReveal className="max-w-2xl">
-          <span className="inline-block text-xs font-bold uppercase tracking-widest text-gold">What we do</span>
-          <h2 className="mt-3 font-display text-4xl sm:text-5xl text-navy">Explore our traditional services</h2>
-          <p className="mt-4 text-muted-foreground">
-            Homes, storefronts, and the docks that hold your boat above the marsh - we handle the outside so you don't have to.
-          </p>
+          <span className="inline-block text-xs font-bold uppercase tracking-widest text-gold">
+            {home.serviceTeaserEyebrow}
+          </span>
+          <h2 className="mt-3 font-display text-4xl sm:text-5xl text-navy">
+            {home.serviceTeaserHeading}
+          </h2>
+          <p className="mt-4 text-muted-foreground">{home.serviceTeaserSub}</p>
         </SectionReveal>
 
         <div className="mt-12 grid gap-6 md:grid-cols-3">
           {teasers.map((s, i) => (
             <SectionReveal key={s.slug} delay={i * 80}>
               <Link
-                to={s.path}
+                to={getServicePath(s.slug)}
                 className="group block overflow-hidden rounded-3xl bg-card border border-border shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl"
               >
                 <div className="aspect-[4/3] overflow-hidden">
@@ -230,34 +381,25 @@ function Home() {
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-20">
         <SectionReveal className="flex items-end justify-between flex-wrap gap-4">
           <div>
-            <span className="inline-block text-xs font-bold uppercase tracking-widest text-gold">The proof</span>
-            <h2 className="mt-3 font-display text-4xl sm:text-5xl text-navy">Before &amp; after</h2>
+            <span className="inline-block text-xs font-bold uppercase tracking-widest text-gold">
+              {home.beforeAfterEyebrow}
+            </span>
+            <h2 className="mt-3 font-display text-4xl sm:text-5xl text-navy">
+              {home.beforeAfterHeading}
+            </h2>
           </div>
-          <Link to="/gallery" className="inline-flex items-center gap-1 text-sm font-semibold text-navy hover:text-gold">
+          <Link
+            to="/gallery"
+            className="inline-flex items-center gap-1 text-sm font-semibold text-navy hover:text-gold"
+          >
             See more transformations <ArrowRight className="h-4 w-4" />
           </Link>
         </SectionReveal>
 
         <div className="mt-10 grid gap-6 md:grid-cols-3">
-          {[
-            {
-              before: before1,
-              after: after1,
-              alt: "Siding & deck soft wash",
-            },
-            {
-              before: before3,
-              after: after3,
-              alt: "Roof & deck restoration",
-            },
-            {
-              before: before4,
-              after: after4,
-              alt: "Pool deck & pavers",
-            },
-          ].map((p, i) => (
-            <SectionReveal key={i} delay={i * 80}>
-              <BeforeAfterSlider before={p.before} after={p.after} alt={p.alt} />
+          {beforeAfterPairs.map((p, i) => (
+            <SectionReveal key={p.id} delay={i * 80}>
+              <BeforeAfterSlider before={p.before} after={p.after} alt={p.label} />
             </SectionReveal>
           ))}
         </div>
@@ -287,28 +429,251 @@ function Home() {
         </svg>
 
         {/* Floating honeycomb bubbles */}
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
+        >
           {[
-            { left: "5%", top: "12%", size: 48, dur: 5.4, delay: -1.2, dx: 30, dy: -16, spin: 38, op: 0.42, tone: "bg-white/42" },
-            { left: "10%", top: "62%", size: 24, dur: 4.2, delay: -2.9, dx: -16, dy: 14, spin: -62, op: 0.48, tone: "bg-cream/50" },
-            { left: "16%", top: "32%", size: 72, dur: 6.0, delay: -4.4, dx: 26, dy: 22, spin: 26, op: 0.36, tone: "bg-white/38" },
-            { left: "22%", top: "86%", size: 36, dur: 4.6, delay: -2.0, dx: -22, dy: -18, spin: 72, op: 0.44, tone: "bg-cream/46" },
-            { left: "28%", top: "16%", size: 28, dur: 4.9, delay: -0.6, dx: 18, dy: 16, spin: -50, op: 0.40, tone: "bg-cream/48" },
-            { left: "34%", top: "74%", size: 60, dur: 6.6, delay: -5.3, dx: -34, dy: -20, spin: 34, op: 0.34, tone: "bg-white/40" },
-            { left: "40%", top: "6%", size: 40, dur: 4.4, delay: -3.6, dx: 24, dy: 24, spin: 66, op: 0.42, tone: "bg-white/44" },
-            { left: "8%", top: "92%", size: 20, dur: 3.7, delay: -1.7, dx: -16, dy: -14, spin: -78, op: 0.50, tone: "bg-cream/52" },
-            { left: "66%", top: "8%", size: 84, dur: 7.0, delay: -6.0, dx: 36, dy: -22, spin: 28, op: 0.28, tone: "bg-white/34" },
-            { left: "58%", top: "90%", size: 44, dur: 4.8, delay: -2.5, dx: -26, dy: 18, spin: -46, op: 0.40, tone: "bg-cream/44" },
-            { left: "76%", top: "80%", size: 26, dur: 4.0, delay: -3.3, dx: 16, dy: -16, spin: 74, op: 0.46, tone: "bg-white/46" },
-            { left: "92%", top: "14%", size: 68, dur: 6.3, delay: -4.7, dx: -32, dy: 24, spin: -32, op: 0.32, tone: "bg-white/40" },
-            { left: "98%", top: "60%", size: 32, dur: 4.5, delay: -1.0, dx: 24, dy: -18, spin: 56, op: 0.44, tone: "bg-cream/48" },
-            { left: "84%", top: "92%", size: 56, dur: 5.6, delay: -4.9, dx: -28, dy: 20, spin: 42, op: 0.34, tone: "bg-cream/42" },
-            { left: "100%", top: "84%", size: 22, dur: 3.9, delay: -2.7, dx: 18, dy: -14, spin: -68, op: 0.48, tone: "bg-white/48" },
-            { left: "45%", top: "48%", size: 34, dur: 4.3, delay: -2.1, dx: -20, dy: 18, spin: 54, op: 0.46, tone: "bg-white/46" },
-            { left: "52%", top: "22%", size: 18, dur: 3.5, delay: -0.9, dx: 14, dy: -12, spin: -60, op: 0.52, tone: "bg-cream/50" },
-            { left: "72%", top: "38%", size: 52, dur: 5.8, delay: -3.9, dx: 28, dy: 20, spin: 40, op: 0.38, tone: "bg-white/40" },
-            { left: "38%", top: "96%", size: 30, dur: 4.1, delay: -1.5, dx: -18, dy: -16, spin: -44, op: 0.44, tone: "bg-cream/46" },
-            { left: "62%", top: "68%", size: 42, dur: 5.2, delay: -4.0, dx: 22, dy: -20, spin: 64, op: 0.40, tone: "bg-white/44" },
+            {
+              left: "5%",
+              top: "12%",
+              size: 48,
+              dur: 5.4,
+              delay: -1.2,
+              dx: 30,
+              dy: -16,
+              spin: 38,
+              op: 0.42,
+              tone: "bg-white/42",
+            },
+            {
+              left: "10%",
+              top: "62%",
+              size: 24,
+              dur: 4.2,
+              delay: -2.9,
+              dx: -16,
+              dy: 14,
+              spin: -62,
+              op: 0.48,
+              tone: "bg-cream/50",
+            },
+            {
+              left: "16%",
+              top: "32%",
+              size: 72,
+              dur: 6.0,
+              delay: -4.4,
+              dx: 26,
+              dy: 22,
+              spin: 26,
+              op: 0.36,
+              tone: "bg-white/38",
+            },
+            {
+              left: "22%",
+              top: "86%",
+              size: 36,
+              dur: 4.6,
+              delay: -2.0,
+              dx: -22,
+              dy: -18,
+              spin: 72,
+              op: 0.44,
+              tone: "bg-cream/46",
+            },
+            {
+              left: "28%",
+              top: "16%",
+              size: 28,
+              dur: 4.9,
+              delay: -0.6,
+              dx: 18,
+              dy: 16,
+              spin: -50,
+              op: 0.4,
+              tone: "bg-cream/48",
+            },
+            {
+              left: "34%",
+              top: "74%",
+              size: 60,
+              dur: 6.6,
+              delay: -5.3,
+              dx: -34,
+              dy: -20,
+              spin: 34,
+              op: 0.34,
+              tone: "bg-white/40",
+            },
+            {
+              left: "40%",
+              top: "6%",
+              size: 40,
+              dur: 4.4,
+              delay: -3.6,
+              dx: 24,
+              dy: 24,
+              spin: 66,
+              op: 0.42,
+              tone: "bg-white/44",
+            },
+            {
+              left: "8%",
+              top: "92%",
+              size: 20,
+              dur: 3.7,
+              delay: -1.7,
+              dx: -16,
+              dy: -14,
+              spin: -78,
+              op: 0.5,
+              tone: "bg-cream/52",
+            },
+            {
+              left: "66%",
+              top: "8%",
+              size: 84,
+              dur: 7.0,
+              delay: -6.0,
+              dx: 36,
+              dy: -22,
+              spin: 28,
+              op: 0.28,
+              tone: "bg-white/34",
+            },
+            {
+              left: "58%",
+              top: "90%",
+              size: 44,
+              dur: 4.8,
+              delay: -2.5,
+              dx: -26,
+              dy: 18,
+              spin: -46,
+              op: 0.4,
+              tone: "bg-cream/44",
+            },
+            {
+              left: "76%",
+              top: "80%",
+              size: 26,
+              dur: 4.0,
+              delay: -3.3,
+              dx: 16,
+              dy: -16,
+              spin: 74,
+              op: 0.46,
+              tone: "bg-white/46",
+            },
+            {
+              left: "92%",
+              top: "14%",
+              size: 68,
+              dur: 6.3,
+              delay: -4.7,
+              dx: -32,
+              dy: 24,
+              spin: -32,
+              op: 0.32,
+              tone: "bg-white/40",
+            },
+            {
+              left: "98%",
+              top: "60%",
+              size: 32,
+              dur: 4.5,
+              delay: -1.0,
+              dx: 24,
+              dy: -18,
+              spin: 56,
+              op: 0.44,
+              tone: "bg-cream/48",
+            },
+            {
+              left: "84%",
+              top: "92%",
+              size: 56,
+              dur: 5.6,
+              delay: -4.9,
+              dx: -28,
+              dy: 20,
+              spin: 42,
+              op: 0.34,
+              tone: "bg-cream/42",
+            },
+            {
+              left: "100%",
+              top: "84%",
+              size: 22,
+              dur: 3.9,
+              delay: -2.7,
+              dx: 18,
+              dy: -14,
+              spin: -68,
+              op: 0.48,
+              tone: "bg-white/48",
+            },
+            {
+              left: "45%",
+              top: "48%",
+              size: 34,
+              dur: 4.3,
+              delay: -2.1,
+              dx: -20,
+              dy: 18,
+              spin: 54,
+              op: 0.46,
+              tone: "bg-white/46",
+            },
+            {
+              left: "52%",
+              top: "22%",
+              size: 18,
+              dur: 3.5,
+              delay: -0.9,
+              dx: 14,
+              dy: -12,
+              spin: -60,
+              op: 0.52,
+              tone: "bg-cream/50",
+            },
+            {
+              left: "72%",
+              top: "38%",
+              size: 52,
+              dur: 5.8,
+              delay: -3.9,
+              dx: 28,
+              dy: 20,
+              spin: 40,
+              op: 0.38,
+              tone: "bg-white/40",
+            },
+            {
+              left: "38%",
+              top: "96%",
+              size: 30,
+              dur: 4.1,
+              delay: -1.5,
+              dx: -18,
+              dy: -16,
+              spin: -44,
+              op: 0.44,
+              tone: "bg-cream/46",
+            },
+            {
+              left: "62%",
+              top: "68%",
+              size: 42,
+              dur: 5.2,
+              delay: -4.0,
+              dx: 22,
+              dy: -20,
+              spin: 64,
+              op: 0.4,
+              tone: "bg-white/44",
+            },
           ].map((b, i) => (
             <div
               key={i}
@@ -331,15 +696,12 @@ function Home() {
         <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 grid gap-10 md:grid-cols-2 items-center">
           <SectionReveal>
             <span className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-widest text-navy">
-              <Sparkles className="h-3.5 w-3.5" /> New capability
+              <Sparkles className="h-3.5 w-3.5" /> {home.droneEyebrow}
             </span>
             <h2 className="mt-3 font-display text-5xl sm:text-6xl text-navy leading-[0.95]">
-              Drone Cleaning
+              {home.droneHeading}
             </h2>
-            <p className="mt-5 text-navy/85 text-lg max-w-md">
-              Where ladders end, our drone begins. Low-pressure soft-wash chemistry for steeples,
-              multi-story homes, and tall commercial facades. 100+ feet up, same clean, no ladders.
-            </p>
+            <p className="mt-5 text-navy/85 text-lg max-w-md">{home.droneBody}</p>
             <div className="mt-6 flex flex-wrap items-center gap-4">
               <Button
                 asChild
@@ -348,14 +710,15 @@ function Home() {
                 <Link to="/drone-cleaning">Learn more</Link>
               </Button>
               <div className="inline-flex items-center gap-2 rounded-full bg-white/60 px-4 py-2 text-xs font-semibold text-navy backdrop-blur-sm border border-navy/15">
-                Partnered with <span className="font-display tracking-wide text-navy">LUCID BOTS</span>
+                Partnered with{" "}
+                <span className="font-display tracking-wide text-navy">LUCID BOTS</span>
               </div>
             </div>
           </SectionReveal>
           <SectionReveal delay={120}>
             <div className="rounded-3xl overflow-hidden shadow-2xl border-4 border-white/40">
               <img
-                src={DRONE_IMG}
+                src={home.images.droneBlock}
                 alt="Drone soft-wash cleaning a tall building"
                 className="w-full aspect-[3/4] object-cover"
               />
@@ -371,10 +734,8 @@ function Home() {
             <span className="inline-flex items-center gap-2 rounded-full border border-navy/15 bg-white/60 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-navy">
               <ShieldCheck className="h-3.5 w-3.5 text-gold" /> Lowcountry trusted
             </span>
-            <h2 className="mt-5 font-display text-4xl sm:text-5xl">Ready for a cleaner property?</h2>
-            <p className="mt-3 text-navy/70 text-lg">
-              Free estimates. Fast quotes. We serve {SITE.city} and the Lowcountry.
-            </p>
+            <h2 className="mt-5 font-display text-4xl sm:text-5xl">{home.finalCtaHeading}</h2>
+            <p className="mt-3 text-navy/70 text-lg">{home.finalCtaSub}</p>
             <Button
               asChild
               className="mt-7 rounded-full bg-navy text-white hover:bg-navy/90 h-12 px-8 font-semibold shadow-lg"

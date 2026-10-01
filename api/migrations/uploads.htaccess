@@ -1,0 +1,6 @@
+# Deploy this file as public_html/uploads/.htaccess (one-time, manual — NOT part
+# of the dist/ build). Prevents any file that ever lands in uploads/ from being
+# executed as a script, even if a disguised upload slips past validation.
+<FilesMatch "\.(?i:php|phtml|php\d|pl|py|cgi|sh)$">
+    Require all denied
+</FilesMatch>

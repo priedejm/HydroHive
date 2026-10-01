@@ -1,8 +1,13 @@
 import { Star, Quote, ExternalLink } from "lucide-react";
-import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselPrevious,
+  CarouselNext,
+} from "@/components/ui/carousel";
 import { SectionReveal } from "@/components/site/SectionReveal";
-import { REVIEWS } from "@/lib/reviews";
-import { SITE } from "@/lib/site";
+import { useReviews, useSite } from "@/lib/content/hooks";
 
 function Stars() {
   return (
@@ -15,6 +20,8 @@ function Stars() {
 }
 
 export function ReviewsSection() {
+  const reviews = useReviews();
+  const site = useSite();
   return (
     <section id="reviews" className="scroll-mt-24 bg-cream">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20">
@@ -23,17 +30,21 @@ export function ReviewsSection() {
             <span className="inline-block text-xs font-bold uppercase tracking-widest text-gold">
               What Charleston is saying
             </span>
-            <h2 className="mt-3 font-display text-4xl sm:text-5xl text-navy">Reviews from the Hive</h2>
+            <h2 className="mt-3 font-display text-4xl sm:text-5xl text-navy">
+              Reviews from the Hive
+            </h2>
             <div className="mt-4 flex items-center gap-3">
               <Stars />
-              <span className="font-display text-2xl text-navy">{SITE.googleRating.toFixed(1)}</span>
+              <span className="font-display text-2xl text-navy">
+                {site.googleRating.toFixed(1)}
+              </span>
               <span className="text-sm text-muted-foreground">
-                from {SITE.googleReviewCount} Google reviews
+                from {site.googleReviewCount} Google reviews
               </span>
             </div>
           </div>
           <a
-            href={SITE.googleReviewsUrl}
+            href={site.googleReviewsUrl}
             target="_blank"
             rel="noreferrer"
             className="inline-flex items-center gap-1.5 rounded-full border border-navy/15 bg-white px-4 py-2.5 text-sm font-semibold text-navy hover:border-navy/40 transition-colors"
@@ -45,7 +56,7 @@ export function ReviewsSection() {
         <SectionReveal delay={100} className="mt-12">
           <Carousel opts={{ align: "start", loop: true }} className="px-1">
             <CarouselContent>
-              {REVIEWS.map((r) => (
+              {reviews.map((r) => (
                 <CarouselItem key={r.name + r.timeAgo} className="sm:basis-1/2 lg:basis-1/3">
                   <figure className="flex h-full flex-col rounded-3xl bg-card border border-border p-6 shadow-sm">
                     <Quote className="h-6 w-6 text-gold" />

@@ -1,11 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ServiceDetailPage } from "@/components/site/ServiceDetailPage";
-import { SERVICE_CONTENT } from "@/lib/service-content";
-import { getService } from "@/lib/site";
-import { buildBreadcrumbSchema, buildFaqSchema, buildServiceSchema, jsonLdScript } from "@/lib/schema";
+import { DEFAULT_CONTENT } from "@/lib/content/defaults";
+import { getServicePath } from "@/lib/site";
+import {
+  buildBreadcrumbSchema,
+  buildFaqSchema,
+  buildServiceSchema,
+  jsonLdScript,
+} from "@/lib/schema";
 
-const service = getService("commercial");
-const content = SERVICE_CONTENT.commercial;
+// head()/schema below run at route-module load, before any component has
+// rendered, so they read the build-time DEFAULT_CONTENT snapshot rather than
+// live admin-edited content - see the comment in src/lib/schema.ts.
+const service = DEFAULT_CONTENT.services.find((s) => s.slug === "commercial")!;
+const content = DEFAULT_CONTENT.service_content.commercial;
+const path = getServicePath("commercial");
 
 export const Route = createFileRoute("/commercial")({
   head: () => ({
@@ -18,18 +27,25 @@ export const Route = createFileRoute("/commercial")({
       },
       { property: "og:title", content: "Commercial Exterior Cleaning · Hydro Hive" },
       { property: "og:description", content: service.short },
-      { property: "og:url", content: service.path },
+      { property: "og:url", content: path },
     ],
-    links: [{ rel: "canonical", href: service.path }],
+    links: [{ rel: "canonical", href: path }],
     scripts: [
       jsonLdScript(
         buildBreadcrumbSchema([
           { name: "Home", path: "/" },
           { name: "Services", path: "/services" },
-          { name: "Commercial", path: service.path },
+          { name: "Commercial", path },
         ]),
       ),
-      jsonLdScript(buildServiceSchema({ slug: "commercial", name: service.name, description: service.long, path: service.path })),
+      jsonLdScript(
+        buildServiceSchema({
+          slug: "commercial",
+          name: service.name,
+          description: service.long,
+          path,
+        }),
+      ),
       jsonLdScript(buildFaqSchema(content.faqs)),
     ],
   }),

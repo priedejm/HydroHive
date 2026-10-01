@@ -2,22 +2,31 @@ import { Link } from "@tanstack/react-router";
 import { ArrowRight, ChevronRight, Mail, MapPin, Phone, ShieldCheck, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SectionReveal } from "@/components/site/SectionReveal";
-import { SERVICES, SITE, getLocation, type LocationSlug } from "@/lib/site";
-import { REVIEWS } from "@/lib/reviews";
+import { getServicePath, type LocationSlug } from "@/lib/site";
+import { useServices, useSite, useLocation, useReviews } from "@/lib/content/hooks";
 
 export function ServiceAreaPage({ slug }: { slug: LocationSlug }) {
-  const location = getLocation(slug);
-  const spotlightReviews = REVIEWS.slice(0, 3);
+  const location = useLocation(slug);
+  const services = useServices();
+  const site = useSite();
+  const spotlightReviews = useReviews().slice(0, 3);
 
   return (
     <div>
       <section className="bg-navy text-primary-foreground">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
           <SectionReveal>
-            <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-primary-foreground/60">
-              <Link to="/" className="hover:text-gold">Home</Link>
+            <nav
+              aria-label="Breadcrumb"
+              className="flex items-center gap-1.5 text-xs text-primary-foreground/60"
+            >
+              <Link to="/" className="hover:text-gold">
+                Home
+              </Link>
               <ChevronRight className="h-3 w-3" />
-              <Link to="/service-areas" className="hover:text-gold">Service Areas</Link>
+              <Link to="/service-areas" className="hover:text-gold">
+                Service Areas
+              </Link>
               <ChevronRight className="h-3 w-3" />
               <span className="text-primary-foreground/85">{location.name}</span>
             </nav>
@@ -29,16 +38,19 @@ export function ServiceAreaPage({ slug }: { slug: LocationSlug }) {
             </h1>
             <p className="mt-4 max-w-2xl text-primary-foreground/80">{location.short}</p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
-              <Button asChild className="rounded-full bg-cta text-cta-foreground hover:bg-cta/90 h-12 px-6 font-semibold">
+              <Button
+                asChild
+                className="rounded-full bg-cta text-cta-foreground hover:bg-cta/90 h-12 px-6 font-semibold"
+              >
                 <Link to="/contact">
                   Get a Free Estimate <ArrowRight className="ml-1 h-4 w-4" />
                 </Link>
               </Button>
               <a
-                href={SITE.phoneHref}
+                href={site.phoneHref}
                 className="inline-flex items-center gap-2 rounded-full border border-primary-foreground/20 px-5 py-3 text-sm font-semibold hover:bg-primary-foreground/10"
               >
-                <Phone className="h-4 w-4 text-gold" /> {SITE.phone}
+                <Phone className="h-4 w-4 text-gold" /> {site.phone}
               </a>
             </div>
           </SectionReveal>
@@ -62,12 +74,14 @@ export function ServiceAreaPage({ slug }: { slug: LocationSlug }) {
               ))}
             </div>
 
-            <h3 className="mt-12 font-display text-2xl text-navy">Services available in {location.name}</h3>
+            <h3 className="mt-12 font-display text-2xl text-navy">
+              Services available in {location.name}
+            </h3>
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
-              {SERVICES.map((s) => (
+              {services.map((s) => (
                 <Link
                   key={s.slug}
-                  to={s.path}
+                  to={getServicePath(s.slug)}
                   className="group rounded-2xl border border-border bg-card p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
                 >
                   <div className="font-display text-xl text-navy">{s.name}</div>
@@ -88,7 +102,9 @@ export function ServiceAreaPage({ slug }: { slug: LocationSlug }) {
                       <Star key={i} className="h-3.5 w-3.5 fill-gold text-gold" />
                     ))}
                   </div>
-                  <blockquote className="mt-3 text-sm text-navy/85 line-clamp-4">{r.text}</blockquote>
+                  <blockquote className="mt-3 text-sm text-navy/85 line-clamp-4">
+                    {r.text}
+                  </blockquote>
                   <figcaption className="mt-3 text-xs font-semibold text-navy">{r.name}</figcaption>
                 </figure>
               ))}
@@ -100,20 +116,30 @@ export function ServiceAreaPage({ slug }: { slug: LocationSlug }) {
               <h3 className="font-display text-xl text-navy">Quick contact</h3>
               <ul className="mt-4 space-y-3 text-sm">
                 <li>
-                  <a href={`mailto:${SITE.email}`} className="inline-flex items-center gap-2 text-navy hover:text-gold">
-                    <Mail className="h-4 w-4" /> {SITE.email}
+                  <a
+                    href={`mailto:${site.email}`}
+                    className="inline-flex items-center gap-2 text-navy hover:text-gold"
+                  >
+                    <Mail className="h-4 w-4" /> {site.email}
                   </a>
                 </li>
                 <li>
-                  <a href={SITE.phoneHref} className="inline-flex items-center gap-2 text-navy hover:text-gold">
-                    <Phone className="h-4 w-4" /> {SITE.phone}
+                  <a
+                    href={site.phoneHref}
+                    className="inline-flex items-center gap-2 text-navy hover:text-gold"
+                  >
+                    <Phone className="h-4 w-4" /> {site.phone}
                   </a>
                 </li>
                 <li className="inline-flex items-start gap-2 text-navy">
-                  <MapPin className="h-4 w-4 mt-0.5 shrink-0" /> Serving {location.name} &amp; the Lowcountry
+                  <MapPin className="h-4 w-4 mt-0.5 shrink-0" /> Serving {location.name} &amp; the
+                  Lowcountry
                 </li>
               </ul>
-              <Button asChild className="mt-5 w-full rounded-full bg-cta text-cta-foreground hover:bg-cta/90 h-11 font-semibold">
+              <Button
+                asChild
+                className="mt-5 w-full rounded-full bg-cta text-cta-foreground hover:bg-cta/90 h-11 font-semibold"
+              >
                 <Link to="/contact">Request a free estimate</Link>
               </Button>
             </div>
@@ -127,7 +153,8 @@ export function ServiceAreaPage({ slug }: { slug: LocationSlug }) {
                 Charleston-based, fully insured, and small on purpose.
               </p>
               <div className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-white/70 px-3 py-1.5 text-xs font-semibold text-navy">
-                <Star className="h-3.5 w-3.5 fill-navy" /> {SITE.googleRating.toFixed(1)} on Google ({SITE.googleReviewCount} reviews)
+                <Star className="h-3.5 w-3.5 fill-navy" /> {site.googleRating.toFixed(1)} on Google
+                ({site.googleReviewCount} reviews)
               </div>
             </div>
           </SectionReveal>
