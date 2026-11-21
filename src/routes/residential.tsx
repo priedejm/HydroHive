@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ServiceDetailPage } from "@/components/site/ServiceDetailPage";
-import { DEFAULT_CONTENT } from "@/lib/content/defaults";
+import { DEFAULTS } from "@/content/defaults";
 import { getServicePath } from "@/lib/site";
 import {
   buildBreadcrumbSchema,
@@ -9,11 +9,10 @@ import {
   jsonLdScript,
 } from "@/lib/schema";
 
-// head()/schema below run at route-module load, before any component has
-// rendered, so they read the build-time DEFAULT_CONTENT snapshot rather than
-// live admin-edited content - see the comment in src/lib/schema.ts.
-const service = DEFAULT_CONTENT.services.find((s) => s.slug === "residential")!;
-const content = DEFAULT_CONTENT.service_content.residential;
+// SEO (head()/JSON-LD) stays in code: it reads the bundled DEFAULTS, not
+// Content Studio edits.
+const service = DEFAULTS.residential.about;
+const faqs = DEFAULTS.residential.faq.items;
 const path = getServicePath("residential");
 
 export const Route = createFileRoute("/residential")({
@@ -46,7 +45,7 @@ export const Route = createFileRoute("/residential")({
           path,
         }),
       ),
-      jsonLdScript(buildFaqSchema(content.faqs)),
+      jsonLdScript(buildFaqSchema(faqs)),
     ],
   }),
   component: () => <ServiceDetailPage slug="residential" />,

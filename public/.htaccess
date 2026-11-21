@@ -1,10 +1,25 @@
+Options -MultiViews -Indexes
+
+# Upload limits for the content admin (same as .user.ini). LiteSpeed reads
+# these here; plain Apache skips this block and uses .user.ini instead.
+<IfModule LiteSpeed>
+  php_value upload_max_filesize 150M
+  php_value post_max_size 160M
+  php_value max_execution_time 900
+  php_value max_input_time 900
+  php_value memory_limit 256M
+</IfModule>
+
 RewriteEngine On
-RewriteBase /
 
-# Serve existing files/directories as-is
-RewriteCond %{REQUEST_FILENAME} -f [OR]
-RewriteCond %{REQUEST_FILENAME} -d
-RewriteRule ^ - [L]
+# --- Content admin protection ---------------------------------------------
+# Private data (edited text, gallery order, backups, login counters).
+RewriteRule ^site-data(/|$) - [F,L]
+# Helper files in /api that are only meant to be included, never requested.
+RewriteRule ^api/_ - [F,L]
+# Nothing executable is ever served from uploads.
+RewriteRule ^uploads/.*\.(php\d?|phtml|phar|pl|py|cgi|sh|html?|svg)$ - [F,L,NC]
 
-# Everything else falls back to index.html for client-side routing
-RewriteRule ^ index.html [L]
+# --- SPA routing -------------------------------------------------------------
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^ index.html [QSA,L]

@@ -1,13 +1,15 @@
 import { ShieldCheck, Star, MapPin, Calendar } from "lucide-react";
-
-const items = [
-  { icon: ShieldCheck, label: "Locally Owned & Operated" },
-  { icon: Star, label: "5.0 on Google" },
-  { icon: Calendar, label: "Est. 2025" },
-  { icon: MapPin, label: "Charleston, SC" },
-];
+import { useContent } from "@/cms/SiteData";
+import { contactInfo } from "@/content/defaults";
 
 export function TrustStrip() {
+  const { contact, google, trustStrip } = useContent().site;
+  const items = [
+    { icon: ShieldCheck, label: trustStrip.owned },
+    { icon: Star, label: `${google.rating.toFixed(1)} on Google` },
+    { icon: Calendar, label: contact.established },
+    { icon: MapPin, label: contactInfo(contact).city },
+  ];
   return (
     <div className="border-y border-border bg-cream">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

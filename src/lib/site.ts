@@ -1,7 +1,8 @@
 // Structural, code-level routing data only. All editable text (names, blurbs,
-// descriptions) lives in the content system (src/lib/content) and is fetched
-// at runtime so it can be edited from /admin without a rebuild. Slugs and
-// paths stay here because they drive actual route matching.
+// descriptions) lives in src/content/defaults.ts and can be edited from /admin.
+// Slugs, paths and the slug -> content page mapping stay here because they
+// drive actual route matching.
+import type { AreaPageKey, ServicePageKey } from "@/content/defaults";
 
 export type ServiceSlug = "residential" | "commercial" | "dock" | "drone-cleaning";
 
@@ -27,15 +28,33 @@ export const LOCATION_ROUTES: Array<{ slug: LocationSlug; path: string }> = [
   { slug: "daniel-island", path: "/service-areas/daniel-island" },
 ];
 
+/** Which content page holds each service's text. */
+export const SERVICE_PAGE: Record<ServiceSlug, ServicePageKey> = {
+  residential: "residential",
+  commercial: "commercial",
+  dock: "dock",
+  "drone-cleaning": "drone",
+};
+
+/** Which content page holds each service area's text. */
+export const LOCATION_PAGE: Record<LocationSlug, AreaPageKey> = {
+  "downtown-charleston": "downtownCharleston",
+  "mount-pleasant": "mountPleasant",
+  "james-island": "jamesIsland",
+  "west-ashley": "westAshley",
+  "daniel-island": "danielIsland",
+};
+
 export function getLocationPath(slug: LocationSlug): string {
   return LOCATION_ROUTES.find((l) => l.slug === slug)!.path;
 }
 
+/** Menu links. The visible labels are editable (site.header.nav). */
 export const NAV = [
-  { to: "/", label: "Home" },
-  { to: "/services", label: "Services" },
-  { to: "/service-areas", label: "Service Areas" },
-  { to: "/", hash: "reviews", label: "Reviews" },
-  { to: "/gallery", label: "Before & After" },
-  { to: "/team", label: "Meet the Hive" },
+  { to: "/", key: "home" },
+  { to: "/services", key: "services" },
+  { to: "/service-areas", key: "serviceAreas" },
+  { to: "/", hash: "reviews", key: "reviews" },
+  { to: "/gallery", key: "gallery" },
+  { to: "/team", key: "team" },
 ] as const;

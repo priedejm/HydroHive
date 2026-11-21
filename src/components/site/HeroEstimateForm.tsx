@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { sendContactEmail } from "@/lib/api";
+import { useContent } from "@/cms/SiteData";
 
 const heroContactSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(100),
@@ -14,6 +15,7 @@ const heroContactSchema = z.object({
 });
 
 export function HeroEstimateForm() {
+  const t = useContent().site.estimateForm;
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -56,9 +58,9 @@ export function HeroEstimateForm() {
         <div className="mx-auto h-14 w-14 rounded-full bg-gold grid place-items-center">
           <Check className="h-7 w-7 text-navy" strokeWidth={3} />
         </div>
-        <h3 className="mt-4 font-display text-xl text-navy">You're all set.</h3>
+        <h3 className="mt-4 font-display text-xl text-navy">{t.doneTitle}</h3>
         <p className="mt-2 text-sm text-muted-foreground">
-          Someone from the Hive will reach out within 24 hours.
+          {t.doneText}
         </p>
         <Button
           type="button"
@@ -71,7 +73,7 @@ export function HeroEstimateForm() {
           }}
           className="mt-5 rounded-full text-navy"
         >
-          Submit another
+          {t.again}
         </Button>
       </div>
     );
@@ -79,9 +81,9 @@ export function HeroEstimateForm() {
 
   return (
     <form onSubmit={handleSubmit} noValidate>
-      <h3 className="font-display text-xl sm:text-2xl text-navy">Get a Free Estimate</h3>
+      <h3 className="font-display text-xl sm:text-2xl text-navy">{t.title}</h3>
       <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
-        Quick quote - we'll follow up within 24 hours.
+        {t.sub}
       </p>
 
       <div className="mt-3 sm:mt-5 space-y-2.5 sm:space-y-3">
@@ -132,9 +134,9 @@ export function HeroEstimateForm() {
         disabled={isSubmitting}
         className="mt-3 sm:mt-5 w-full rounded-full bg-gold text-navy hover:bg-gold/90 h-10 sm:h-11 font-semibold disabled:opacity-70"
       >
-        {isSubmitting ? "Sending..." : (
+        {isSubmitting ? t.sending : (
           <>
-            Get My Free Estimate <ArrowRight className="ml-1 h-4 w-4" />
+            {t.button} <ArrowRight className="ml-1 h-4 w-4" />
           </>
         )}
       </Button>

@@ -6,8 +6,8 @@ import { BeforeAfterSlider } from "@/components/site/BeforeAfterSlider";
 import { TrustStrip } from "@/components/site/TrustStrip";
 import { ReviewsSection } from "@/components/site/ReviewsSection";
 import { HeroEstimateForm } from "@/components/site/HeroEstimateForm";
-import { getServicePath } from "@/lib/site";
-import { useServices, useHomeContent, useGalleryContent } from "@/lib/content/hooks";
+import { getServicePath, type ServiceSlug } from "@/lib/site";
+import { useContent, useImage, resolveImage } from "@/cms/SiteData";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -31,18 +31,25 @@ export const Route = createFileRoute("/")({
 });
 
 function Home() {
-  const services = useServices();
-  const home = useHomeContent();
-  const gallery = useGalleryContent();
-  const teasers = services.filter((s) => s.slug !== "drone-cleaning");
-  const teaserImgs: Record<string, string> = {
-    residential: home.images.residential,
-    commercial: home.images.commercial,
-    dock: home.images.dock,
+  const content = useContent();
+  const home = content.home;
+  const teaserImgs = {
+    residential: useImage("home-residential"),
+    commercial: useImage("home-commercial"),
+    dock: useImage("home-dock"),
   };
+  const droneImage = useImage("home-drone");
+  // Card names/descriptions come from each service page's "about" section.
+  const teasers = (["residential", "commercial", "dock"] as const).map((key) => ({
+    slug: key as ServiceSlug,
+    ...content[key].about,
+    image: teaserImgs[key],
+  }));
   // Reuses the gallery's first 3 before/after pairs so editing (or adding /
-  // removing) a photo in the gallery admin screen updates this strip too.
-  const beforeAfterPairs = gallery.items.slice(0, 3);
+  // removing) a project in the gallery updates this strip too.
+  const beforeAfterPairs = content.gallery.projects.items
+    .filter((p) => resolveImage(p.before.photo) && resolveImage(p.after.photo))
+    .slice(0, 3);
 
   return (
     <div>
@@ -280,13 +287,13 @@ function Home() {
             <div className="lg:order-1">
               <SectionReveal delay={80}>
                 <h1 className="mt-6 font-display text-5xl sm:text-7xl lg:text-[5.5rem] leading-[0.9] tracking-tight text-white">
-                  {home.heroHeadlineLine1}
-                  <span className="block">{home.heroHeadlineLine2}</span>
+                  {home.hero.line1}
+                  <span className="block">{home.hero.line2}</span>
                 </h1>
               </SectionReveal>
 
               <SectionReveal delay={160}>
-                <p className="mt-8 max-w-xl text-lg sm:text-xl text-cream/75">{home.heroSub}</p>
+                <p className="mt-8 max-w-xl text-lg sm:text-xl text-cream/75">{home.hero.sub}</p>
               </SectionReveal>
 
               <SectionReveal delay={220}>
@@ -296,7 +303,7 @@ function Home() {
                     className="rounded-full bg-gold text-navy hover:bg-gold/90 h-12 px-7 text-base font-semibold shadow-[0_10px_30px_-8px_rgba(229,185,60,0.35)]"
                   >
                     <Link to="/contact">
-                      Get a Free Estimate <ArrowRight className="ml-1 h-4 w-4" />
+                      {home.hero.ctaPrimary} <ArrowRight className="ml-1 h-4 w-4" />
                     </Link>
                   </Button>
                   <Button
@@ -304,7 +311,7 @@ function Home() {
                     variant="outline"
                     className="rounded-full border-gold/30 bg-gold/5 text-cream hover:bg-gold/10 hover:text-white h-12 px-7 text-base font-semibold backdrop-blur"
                   >
-                    <Link to="/services">Explore services</Link>
+                    <Link to="/services">{home.hero.ctaSecondary}</Link>
                   </Button>
                 </div>
               </SectionReveal>
@@ -312,8 +319,8 @@ function Home() {
               {/* Stat row */}
               <SectionReveal delay={320}>
                 <dl className="mt-16 grid max-w-2xl grid-cols-3 gap-6 border-t border-cream/10 pt-8">
-                  {home.statRow.map((s) => (
-                    <div key={s.v}>
+                  {home.hero.stats.map((s, i) => (
+                    <div key={i}>
                       <dt className="font-display text-2xl sm:text-3xl text-white">{s.k}</dt>
                       <dd className="mt-1 text-xs sm:text-sm uppercase tracking-wider text-cream/60">
                         {s.v}
@@ -342,12 +349,12 @@ function Home() {
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20">
         <SectionReveal className="max-w-2xl">
           <span className="inline-block text-xs font-bold uppercase tracking-widest text-gold">
-            {home.serviceTeaserEyebrow}
+            {home.services.eyebrow}
           </span>
           <h2 className="mt-3 font-display text-4xl sm:text-5xl text-navy">
-            {home.serviceTeaserHeading}
+            {home.services.title}
           </h2>
-          <p className="mt-4 text-muted-foreground">{home.serviceTeaserSub}</p>
+          <p className="mt-4 text-muted-foreground">{home.services.sub}</p>
         </SectionReveal>
 
         <div className="mt-12 grid gap-6 md:grid-cols-3">
@@ -359,7 +366,7 @@ function Home() {
               >
                 <div className="aspect-[4/3] overflow-hidden">
                   <img
-                    src={teaserImgs[s.slug]}
+                    src={s.image}
                     alt={s.name}
                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
@@ -368,7 +375,7 @@ function Home() {
                   <h3 className="font-display text-2xl text-navy">{s.name}</h3>
                   <p className="mt-2 text-sm text-muted-foreground">{s.short}</p>
                   <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-navy group-hover:text-gold transition-colors">
-                    Learn more <ArrowRight className="h-4 w-4" />
+                    {home.services.learnMore} <ArrowRight className="h-4 w-4" />
                   </span>
                 </div>
               </Link>
@@ -382,24 +389,28 @@ function Home() {
         <SectionReveal className="flex items-end justify-between flex-wrap gap-4">
           <div>
             <span className="inline-block text-xs font-bold uppercase tracking-widest text-gold">
-              {home.beforeAfterEyebrow}
+              {home.beforeAfter.eyebrow}
             </span>
             <h2 className="mt-3 font-display text-4xl sm:text-5xl text-navy">
-              {home.beforeAfterHeading}
+              {home.beforeAfter.title}
             </h2>
           </div>
           <Link
             to="/gallery"
             className="inline-flex items-center gap-1 text-sm font-semibold text-navy hover:text-gold"
           >
-            See more transformations <ArrowRight className="h-4 w-4" />
+            {home.beforeAfter.moreLink} <ArrowRight className="h-4 w-4" />
           </Link>
         </SectionReveal>
 
         <div className="mt-10 grid gap-6 md:grid-cols-3">
           {beforeAfterPairs.map((p, i) => (
-            <SectionReveal key={p.id} delay={i * 80}>
-              <BeforeAfterSlider before={p.before} after={p.after} alt={p.label} />
+            <SectionReveal key={i} delay={i * 80}>
+              <BeforeAfterSlider
+                before={resolveImage(p.before.photo)}
+                after={resolveImage(p.after.photo)}
+                alt={p.label}
+              />
             </SectionReveal>
           ))}
         </div>
@@ -696,30 +707,30 @@ function Home() {
         <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 grid gap-10 md:grid-cols-2 items-center">
           <SectionReveal>
             <span className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-widest text-navy">
-              <Sparkles className="h-3.5 w-3.5" /> {home.droneEyebrow}
+              <Sparkles className="h-3.5 w-3.5" /> {home.drone.eyebrow}
             </span>
             <h2 className="mt-3 font-display text-5xl sm:text-6xl text-navy leading-[0.95]">
-              {home.droneHeading}
+              {home.drone.title}
             </h2>
-            <p className="mt-5 text-navy/85 text-lg max-w-md">{home.droneBody}</p>
+            <p className="mt-5 text-navy/85 text-lg max-w-md">{home.drone.body}</p>
             <div className="mt-6 flex flex-wrap items-center gap-4">
               <Button
                 asChild
                 className="rounded-full bg-navy text-white hover:bg-navy/90 h-12 px-7 font-semibold shadow-[0_10px_30px_-8px_rgba(27,42,74,0.35)]"
               >
-                <Link to="/drone-cleaning">Learn more</Link>
+                <Link to="/drone-cleaning">{home.drone.cta}</Link>
               </Button>
               <div className="inline-flex items-center gap-2 rounded-full bg-white/60 px-4 py-2 text-xs font-semibold text-navy backdrop-blur-sm border border-navy/15">
-                Partnered with{" "}
-                <span className="font-display tracking-wide text-navy">LUCID BOTS</span>
+                {home.drone.partnerPrefix}{" "}
+                <span className="font-display tracking-wide text-navy">{home.drone.partner}</span>
               </div>
             </div>
           </SectionReveal>
           <SectionReveal delay={120}>
             <div className="rounded-3xl overflow-hidden shadow-2xl border-4 border-white/40">
               <img
-                src={home.images.droneBlock}
-                alt="Drone soft-wash cleaning a tall building"
+                src={droneImage}
+                alt={home.drone.imageAlt}
                 className="w-full aspect-[3/4] object-cover"
               />
             </div>
@@ -732,15 +743,15 @@ function Home() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 text-center">
           <SectionReveal>
             <span className="inline-flex items-center gap-2 rounded-full border border-navy/15 bg-white/60 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-navy">
-              <ShieldCheck className="h-3.5 w-3.5 text-gold" /> Lowcountry trusted
+              <ShieldCheck className="h-3.5 w-3.5 text-gold" /> {home.finalCta.badge}
             </span>
-            <h2 className="mt-5 font-display text-4xl sm:text-5xl">{home.finalCtaHeading}</h2>
-            <p className="mt-3 text-navy/70 text-lg">{home.finalCtaSub}</p>
+            <h2 className="mt-5 font-display text-4xl sm:text-5xl">{home.finalCta.title}</h2>
+            <p className="mt-3 text-navy/70 text-lg">{home.finalCta.sub}</p>
             <Button
               asChild
               className="mt-7 rounded-full bg-navy text-white hover:bg-navy/90 h-12 px-8 font-semibold shadow-lg"
             >
-              <Link to="/contact">Get your free estimate</Link>
+              <Link to="/contact">{home.finalCta.cta}</Link>
             </Button>
           </SectionReveal>
         </div>

@@ -4,9 +4,17 @@ import { Menu, X, Instagram, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
-import logo from "@/assets/hydro-hive-logo.svg";
-import { NAV, getServicePath, getLocationPath } from "@/lib/site";
-import { useServices, useLocations, useSite } from "@/lib/content/hooks";
+import {
+  NAV,
+  SERVICE_ROUTES,
+  LOCATION_ROUTES,
+  SERVICE_PAGE,
+  LOCATION_PAGE,
+  getServicePath,
+  getLocationPath,
+} from "@/lib/site";
+import { useContent, useImage } from "@/cms/SiteData";
+import { safeHref } from "@/cms/SmartLink";
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -14,9 +22,12 @@ export function Header() {
   const [servicesOpen, setServicesOpen] = useState(false);
   const [areasOpen, setAreasOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const services = useServices();
-  const locations = useLocations();
-  const site = useSite();
+  const content = useContent();
+  const logo = useImage("site-logo");
+  const { contact } = content.site;
+  const { nav, ctaLabel, followUs } = content.site.header;
+  const services = SERVICE_ROUTES.map((r) => ({ slug: r.slug, name: content[SERVICE_PAGE[r.slug]].about.name }));
+  const locations = LOCATION_ROUTES.map((r) => ({ slug: r.slug, name: content[LOCATION_PAGE[r.slug]].about.name }));
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -39,16 +50,16 @@ export function Header() {
       )}
     >
       <div className="mx-auto grid max-w-7xl grid-cols-[auto_1fr_auto] items-center gap-4 px-4 py-3 sm:px-6 lg:px-8">
-        <Link to="/" className="flex items-center gap-2 shrink-0" aria-label="Hydro Hive home">
-          <img src={logo} alt="Hydro Hive" className="h-12 w-auto sm:h-14" />
+        <Link to="/" className="flex items-center gap-2 shrink-0" aria-label={`${contact.name} home`}>
+          <img src={logo} alt={contact.name} className="h-12 w-auto sm:h-14" />
         </Link>
 
         <nav className="hidden lg:flex items-center justify-center gap-1">
           {NAV.map((item) => {
-            if (item.label === "Services") {
+            if (item.key === "services") {
               return (
                 <div
-                  key={item.label}
+                  key={item.key}
                   className="relative"
                   onMouseEnter={() => setServicesOpen(true)}
                   onMouseLeave={() => setServicesOpen(false)}
@@ -61,7 +72,7 @@ export function Header() {
                     )}
                     activeProps={{ className: "bg-navy/5" }}
                   >
-                    {item.label}
+                    {nav[item.key]}
                     <ChevronDown className="h-3.5 w-3.5" />
                   </Link>
                   {servicesOpen && (
@@ -83,10 +94,10 @@ export function Header() {
               );
             }
 
-            if (item.label === "Service Areas") {
+            if (item.key === "serviceAreas") {
               return (
                 <div
-                  key={item.label}
+                  key={item.key}
                   className="relative"
                   onMouseEnter={() => setAreasOpen(true)}
                   onMouseLeave={() => setAreasOpen(false)}
@@ -99,7 +110,7 @@ export function Header() {
                     )}
                     activeProps={{ className: "bg-navy/5" }}
                   >
-                    {item.label}
+                    {nav[item.key]}
                     <ChevronDown className="h-3.5 w-3.5" />
                   </Link>
                   {areasOpen && (
@@ -124,14 +135,14 @@ export function Header() {
             const hash = "hash" in item ? item.hash : undefined;
             return (
               <Link
-                key={item.label}
+                key={item.key}
                 to={item.to}
                 hash={hash}
                 className="rounded-full px-4 py-2 text-sm font-semibold text-navy transition-colors hover:bg-navy/5"
                 activeProps={{ className: hash ? undefined : "bg-navy/5" }}
                 activeOptions={{ exact: item.to === "/" && !hash }}
               >
-                {item.label}
+                {nav[item.key]}
               </Link>
             );
           })}
@@ -139,7 +150,7 @@ export function Header() {
 
         <div className="flex items-center gap-2 justify-end shrink-0">
           <a
-            href={site.instagram}
+            href={safeHref(contact.instagram)}
             target="_blank"
             rel="noreferrer"
             aria-label="Instagram"
@@ -151,7 +162,7 @@ export function Header() {
             asChild
             className="hidden sm:inline-flex rounded-full bg-cta text-cta-foreground hover:bg-cta/90 h-11 px-5 font-semibold"
           >
-            <Link to="/contact">Get a Free Estimate</Link>
+            <Link to="/contact">{ctaLabel}</Link>
           </Button>
 
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
@@ -180,18 +191,18 @@ export function Header() {
                   const hash = "hash" in item ? item.hash : undefined;
                   return (
                     <Link
-                      key={item.label}
+                      key={item.key}
                       to={item.to}
                       hash={hash}
                       className="rounded-xl px-4 py-3 text-base font-semibold text-navy hover:bg-navy/5"
                     >
-                      {item.label}
+                      {nav[item.key]}
                     </Link>
                   );
                 })}
                 <div className="mt-2 border-t border-border pt-2">
                   <div className="px-4 py-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                    Services
+                    {nav.services}
                   </div>
                   {services.map((s) => (
                     <Link
@@ -205,7 +216,7 @@ export function Header() {
                 </div>
                 <div className="mt-2 border-t border-border pt-2">
                   <div className="px-4 py-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                    Service Areas
+                    {nav.serviceAreas}
                   </div>
                   {locations.map((l) => (
                     <Link
@@ -221,15 +232,15 @@ export function Header() {
                   asChild
                   className="mt-6 h-12 rounded-full bg-cta text-cta-foreground hover:bg-cta/90 font-semibold"
                 >
-                  <Link to="/contact">Get a Free Estimate</Link>
+                  <Link to="/contact">{ctaLabel}</Link>
                 </Button>
                 <a
-                  href={site.instagram}
+                  href={safeHref(contact.instagram)}
                   target="_blank"
                   rel="noreferrer"
                   className="mt-4 inline-flex items-center justify-center gap-2 rounded-full border border-border py-3 text-sm font-medium text-navy"
                 >
-                  <Instagram className="h-4 w-4" /> Follow us
+                  <Instagram className="h-4 w-4" /> {followUs}
                 </a>
               </div>
             </SheetContent>

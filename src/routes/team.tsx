@@ -3,7 +3,8 @@ import { ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SectionReveal } from "@/components/site/SectionReveal";
 import { cn } from "@/lib/utils";
-import { useTeam, useSite } from "@/lib/content/hooks";
+import { useContent, useImage, resolveImage } from "@/cms/SiteData";
+import { contactInfo } from "@/content/defaults";
 
 export const Route = createFileRoute("/team")({
   head: () => ({
@@ -26,8 +27,10 @@ export const Route = createFileRoute("/team")({
 });
 
 function TeamPage() {
-  const team = useTeam();
-  const site = useSite();
+  const content = useContent();
+  const team = content.team;
+  const heroImage = useImage("team-hero");
+  const { contact } = content.site;
 
   return (
     <div>
@@ -35,14 +38,14 @@ function TeamPage() {
         <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8 py-20 text-center">
           <SectionReveal>
             <span className="text-xs font-bold uppercase tracking-widest text-gold">
-              Who we are
+              {team.hero.eyebrow}
             </span>
-            <h1 className="mt-3 font-display text-5xl sm:text-6xl text-navy">{team.heroTitle}</h1>
-            <p className="mt-4 text-muted-foreground">{team.heroSub}</p>
+            <h1 className="mt-3 font-display text-5xl sm:text-6xl text-navy">{team.hero.title}</h1>
+            <p className="mt-4 text-muted-foreground">{team.hero.sub}</p>
             <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-navy px-4 py-2 text-primary-foreground">
               <ShieldCheck className="h-4 w-4 text-gold" />
               <span className="text-sm font-semibold">
-                {site.established} · {site.city}
+                {contact.established} · {contactInfo(contact).city}
               </span>
             </div>
           </SectionReveal>
@@ -51,7 +54,7 @@ function TeamPage() {
           <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 pb-16">
             <div className="overflow-hidden rounded-3xl shadow-lg border-4 border-white">
               <img
-                src={team.heroImage}
+                src={heroImage}
                 alt="The Hive crew on site"
                 className="w-full aspect-[4/3] object-cover object-bottom"
               />
@@ -61,10 +64,10 @@ function TeamPage() {
       </section>
 
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-14 space-y-20">
-        {team.members.map((m, i) => {
+        {team.members.items.map((m, i) => {
           const reverse = i % 2 === 1;
           return (
-            <SectionReveal key={m.first}>
+            <SectionReveal key={i}>
               <div
                 className={cn(
                   "grid gap-10 md:grid-cols-[minmax(0,340px)_1fr] items-center",
@@ -72,11 +75,13 @@ function TeamPage() {
                 )}
               >
                 <div className="mx-auto">
-                  <img
-                    src={m.photo}
-                    alt={`${m.first} - Hydro Hive crew`}
-                    className="h-80 w-auto object-contain"
-                  />
+                  {resolveImage(m.photo) && (
+                    <img
+                      src={resolveImage(m.photo)}
+                      alt={`${m.first} - Hydro Hive crew`}
+                      className="h-80 w-auto object-contain"
+                    />
+                  )}
                 </div>
 
                 <div>
@@ -99,13 +104,13 @@ function TeamPage() {
       <section className="bg-gold">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-16 text-center">
           <SectionReveal>
-            <h2 className="font-display text-4xl text-navy">{team.storyTitle}</h2>
-            <p className="mt-4 text-navy/85">{team.storyBody}</p>
+            <h2 className="font-display text-4xl text-navy">{team.story.title}</h2>
+            <p className="mt-4 text-navy/85">{team.story.body}</p>
             <Button
               asChild
               className="mt-6 rounded-full bg-cta text-cta-foreground hover:bg-cta/90 h-12 px-7 font-semibold"
             >
-              <Link to="/contact">Work with the Hive</Link>
+              <Link to="/contact">{team.story.cta}</Link>
             </Button>
           </SectionReveal>
         </div>

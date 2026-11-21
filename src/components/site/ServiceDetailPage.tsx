@@ -8,15 +8,29 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { SectionReveal } from "@/components/site/SectionReveal";
-import { getLocationPath, type ServiceSlug } from "@/lib/site";
-import { useService, useServiceContent, useLocations, useSite } from "@/lib/content/hooks";
+import {
+  LOCATION_ROUTES,
+  LOCATION_PAGE,
+  SERVICE_PAGE,
+  getLocationPath,
+  type ServiceSlug,
+} from "@/lib/site";
+import { useContent, useImage, useMediaList } from "@/cms/SiteData";
+import { isVideoUrl } from "@/cms/compose";
+import { telHref } from "@/cms/Rich";
+import { COMMERCIAL_GALLERY_ALTS } from "@/content/media";
 import { cn } from "@/lib/utils";
 
 export function ServiceDetailPage({ slug }: { slug: ServiceSlug }) {
-  const service = useService(slug);
-  const content = useServiceContent(slug);
-  const locations = useLocations();
-  const site = useSite();
+  const all = useContent();
+  const pageKey = SERVICE_PAGE[slug];
+  const page = all[pageKey];
+  const service = page.about;
+  const image = useImage(`${pageKey}-photo`);
+  const gallery = useMediaList(`${pageKey}-gallery`);
+  const { contact } = all.site;
+  const { nav } = all.site.header;
+  const locations = LOCATION_ROUTES.map((r) => ({ slug: r.slug, name: all[LOCATION_PAGE[r.slug]].about.name }));
   const isDrone = slug === "drone-cleaning";
 
   return (
@@ -29,20 +43,20 @@ export function ServiceDetailPage({ slug }: { slug: ServiceSlug }) {
               className="flex items-center gap-1.5 text-xs text-primary-foreground/60"
             >
               <Link to="/" className="hover:text-gold">
-                Home
+                {nav.home}
               </Link>
               <ChevronRight className="h-3 w-3" />
               <Link to="/services" className="hover:text-gold">
-                Services
+                {nav.services}
               </Link>
               <ChevronRight className="h-3 w-3" />
               <span className="text-primary-foreground/85">{service.name}</span>
             </nav>
             <span className="mt-6 inline-block text-xs font-bold uppercase tracking-widest text-gold">
-              {service.name} Cleaning
+              {page.hero.eyebrow}
             </span>
             <h1 className="mt-3 font-display text-5xl sm:text-6xl max-w-3xl">
-              {service.name} exterior cleaning in Charleston, SC
+              {page.hero.title}
             </h1>
             <p className="mt-4 max-w-2xl text-primary-foreground/80">{service.short}</p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -55,10 +69,10 @@ export function ServiceDetailPage({ slug }: { slug: ServiceSlug }) {
                 </Link>
               </Button>
               <a
-                href={site.phoneHref}
+                href={telHref(contact.phone)}
                 className="inline-flex items-center gap-2 rounded-full border border-primary-foreground/20 px-5 py-3 text-sm font-semibold hover:bg-primary-foreground/10"
               >
-                <Phone className="h-4 w-4 text-gold" /> {site.phone}
+                <Phone className="h-4 w-4 text-gold" /> {contact.phone}
               </a>
             </div>
           </SectionReveal>
@@ -71,7 +85,7 @@ export function ServiceDetailPage({ slug }: { slug: ServiceSlug }) {
             <SectionReveal>
               <div className="overflow-hidden rounded-3xl shadow-lg border-4 border-white">
                 <img
-                  src={content.image}
+                  src={image}
                   alt={`${service.name} exterior cleaning`}
                   className="w-full aspect-[4/3] object-cover"
                 />
@@ -79,7 +93,7 @@ export function ServiceDetailPage({ slug }: { slug: ServiceSlug }) {
             </SectionReveal>
             <SectionReveal delay={100}>
               <h2 className={cn("font-display text-3xl sm:text-4xl", "text-navy")}>
-                What's included
+                {page.included.title}
               </h2>
               <p
                 className={cn("mt-4 text-base", isDrone ? "text-navy/85" : "text-muted-foreground")}
@@ -87,8 +101,8 @@ export function ServiceDetailPage({ slug }: { slug: ServiceSlug }) {
                 {service.long}
               </p>
               <ul className="mt-6 grid gap-2 sm:grid-cols-2">
-                {content.bullets.map((b) => (
-                  <li key={b} className="flex items-start gap-2 text-sm text-navy">
+                {page.included.bullets.map((b, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm text-navy">
                     <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-navy text-primary-foreground">
                       <Check className="h-3 w-3" strokeWidth={3} />
                     </span>
@@ -100,18 +114,34 @@ export function ServiceDetailPage({ slug }: { slug: ServiceSlug }) {
           </div>
         </section>
 
-        {content.gallery && content.gallery.length > 0 && (
+        {gallery.length > 0 && (
           <SectionReveal className="mt-14">
             <h2 className="font-display text-3xl text-navy">
-              Recent {service.name.toLowerCase()} work
+              {page.gallery.title}
             </h2>
             <div className="mt-6 grid gap-6 sm:grid-cols-3">
-              {content.gallery.map((g) => (
+              {gallery.map((src) => (
                 <div
-                  key={g.src}
+                  key={src}
                   className="overflow-hidden rounded-2xl shadow-sm border border-border"
                 >
-                  <img src={g.src} alt={g.alt} className="w-full aspect-[3/4] object-cover" />
+                  {isVideoUrl(src) ? (
+                    <video
+                      src={`${src}#t=0.1`}
+                      controls
+                      muted
+                      playsInline
+                      preload="metadata"
+                      aria-label={`${service.name} project video`}
+                      className="w-full aspect-[3/4] object-cover bg-navy"
+                    />
+                  ) : (
+                    <img
+                      src={src}
+                      alt={COMMERCIAL_GALLERY_ALTS[src] ?? `${service.name} project`}
+                      className="w-full aspect-[3/4] object-cover"
+                    />
+                  )}
                 </div>
               ))}
             </div>
@@ -121,11 +151,10 @@ export function ServiceDetailPage({ slug }: { slug: ServiceSlug }) {
         {/* Service areas internal linking */}
         <SectionReveal className="mt-20">
           <h2 className="font-display text-3xl text-navy">
-            Serving {service.name.toLowerCase()} clients across the Lowcountry
+            {page.areas.title}
           </h2>
           <p className="mt-3 max-w-2xl text-muted-foreground">
-            We bring {service.name.toLowerCase()} cleaning to these Charleston-area communities and
-            beyond.
+            {page.areas.sub}
           </p>
           <div className="mt-6 flex flex-wrap gap-2">
             {locations.map((l) => (
@@ -142,9 +171,9 @@ export function ServiceDetailPage({ slug }: { slug: ServiceSlug }) {
 
         {/* FAQs */}
         <SectionReveal className="mt-20 max-w-3xl">
-          <h2 className="font-display text-3xl text-navy">Frequently asked questions</h2>
+          <h2 className="font-display text-3xl text-navy">{page.faq.title}</h2>
           <Accordion type="single" collapsible className="mt-6">
-            {content.faqs.map((f, i) => (
+            {page.faq.items.map((f, i) => (
               <AccordionItem key={i} value={`faq-${i}`}>
                 <AccordionTrigger className="font-display text-lg text-navy">
                   {f.q}
@@ -160,10 +189,10 @@ export function ServiceDetailPage({ slug }: { slug: ServiceSlug }) {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 text-center">
           <SectionReveal>
             <h2 className="font-display text-4xl sm:text-5xl">
-              Ready for {service.name.toLowerCase()} that's done right?
+              {page.finalCta.title}
             </h2>
             <p className="mt-3 text-primary-foreground/75">
-              Free estimates. Fast quotes. Fully insured.
+              {page.finalCta.sub}
             </p>
             <Button
               asChild

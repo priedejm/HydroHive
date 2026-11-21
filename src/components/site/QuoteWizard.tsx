@@ -9,8 +9,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
-import type { ServiceSlug } from "@/lib/site";
-import { useServices } from "@/lib/content/hooks";
+import { SERVICE_ROUTES, SERVICE_PAGE, type ServiceSlug } from "@/lib/site";
+import { useContent } from "@/cms/SiteData";
 import { sendContactEmail } from "@/lib/api";
 
 const ICONS: Record<ServiceSlug, typeof Home> = {
@@ -27,10 +27,12 @@ const contactSchema = z.object({
   address: z.string().trim().min(3, "Please enter your address").max(200),
 });
 
-const STEPS = ["Service", "Property", "Contact", "Review"] as const;
+const STEPS = ["service", "property", "contact", "review"] as const;
 
 export function QuoteWizard({ initialService }: { initialService?: ServiceSlug }) {
-  const services = useServices();
+  const content = useContent();
+  const t = content.site.quoteWizard;
+  const services = SERVICE_ROUTES.map((r) => ({ slug: r.slug, ...content[SERVICE_PAGE[r.slug]].about }));
   const [step, setStep] = useState(0);
   const [service, setService] = useState<ServiceSlug | undefined>(initialService);
   const [size, setSize] = useState<string>("");
@@ -108,10 +110,9 @@ export function QuoteWizard({ initialService }: { initialService?: ServiceSlug }
         <div className="mx-auto h-16 w-16 rounded-full bg-gold grid place-items-center">
           <Check className="h-8 w-8 text-navy" strokeWidth={3} />
         </div>
-        <h3 className="mt-6 font-display text-2xl sm:text-3xl text-navy">You're all set.</h3>
+        <h3 className="mt-6 font-display text-2xl sm:text-3xl text-navy">{t.doneTitle}</h3>
         <p className="mt-3 text-muted-foreground max-w-md mx-auto">
-          Thanks for reaching out. Someone from the Hive will be in touch within 24 hours to lock in
-          your free estimate.
+          {t.doneText}
         </p>
         <Button
           onClick={() => {
@@ -122,7 +123,7 @@ export function QuoteWizard({ initialService }: { initialService?: ServiceSlug }
           variant="outline"
           className="mt-6 rounded-full text-navy"
         >
-          Submit another
+          {t.again}
         </Button>
       </div>
     );
@@ -132,8 +133,8 @@ export function QuoteWizard({ initialService }: { initialService?: ServiceSlug }
     <div className="rounded-3xl bg-card p-6 sm:p-8 shadow-sm border border-border">
       {/* Progress */}
       <ol className="flex items-center gap-2 mb-8">
-        {STEPS.map((label, i) => (
-          <li key={label} className="flex items-center gap-2 flex-1">
+        {STEPS.map((key, i) => (
+          <li key={key} className="flex items-center gap-2 flex-1">
             <div className={cn("h-2 flex-1 rounded-full", i <= step ? "bg-gold" : "bg-muted")} />
             <span
               className={cn(
@@ -141,7 +142,7 @@ export function QuoteWizard({ initialService }: { initialService?: ServiceSlug }
                 i <= step ? "text-navy" : "text-muted-foreground",
               )}
             >
-              {label}
+              {t.steps[key]}
             </span>
           </li>
         ))}
@@ -149,8 +150,8 @@ export function QuoteWizard({ initialService }: { initialService?: ServiceSlug }
 
       {step === 0 && (
         <StepShell
-          title="What can we clean for you?"
-          subtitle="Pick the service closest to what you need - you can add details in a moment."
+          title={t.serviceTitle}
+          subtitle={t.serviceSub}
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {services.map((s) => {
@@ -194,25 +195,20 @@ export function QuoteWizard({ initialService }: { initialService?: ServiceSlug }
 
       {step === 1 && (
         <StepShell
-          title="Tell us about the property"
-          subtitle="Rough numbers are fine - we'll confirm on-site."
+          title={t.propertyTitle}
+          subtitle={t.propertySub}
         >
           <div className="space-y-6">
             <div>
-              <Label className="text-sm font-semibold text-navy">Approximate size</Label>
+              <Label className="text-sm font-semibold text-navy">{t.sizeLabel}</Label>
               <RadioGroup
                 value={size}
                 onValueChange={setSize}
                 className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-2"
               >
-                {[
-                  "Under 1,500 sq ft",
-                  "1,500–3,000 sq ft",
-                  "3,000–5,000 sq ft",
-                  "5,000+ sq ft",
-                ].map((v) => (
+                {t.sizes.map((v, i) => (
                   <label
-                    key={v}
+                    key={i}
                     className={cn(
                       "cursor-pointer rounded-xl border-2 p-3 text-center text-sm font-medium transition-all",
                       size === v
@@ -228,7 +224,7 @@ export function QuoteWizard({ initialService }: { initialService?: ServiceSlug }
             </div>
 
             <div>
-              <Label className="text-sm font-semibold text-navy">Stories</Label>
+              <Label className="text-sm font-semibold text-navy">{t.storiesLabel}</Label>
               <RadioGroup
                 value={stories}
                 onValueChange={setStories}
@@ -252,19 +248,13 @@ export function QuoteWizard({ initialService }: { initialService?: ServiceSlug }
             </div>
 
             <div>
-              <Label className="text-sm font-semibold text-navy">Add-ons</Label>
+              <Label className="text-sm font-semibold text-navy">{t.addonsLabel}</Label>
               <div className="mt-3 flex flex-wrap gap-2">
-                {[
-                  "Windows",
-                  "Gutter brightening",
-                  "Roof soft wash",
-                  "Dock/deck",
-                  "Drone reach",
-                ].map((v) => {
+                {t.addons.map((v, i) => {
                   const active = addons.includes(v);
                   return (
                     <label
-                      key={v}
+                      key={i}
                       className={cn(
                         "cursor-pointer inline-flex items-center gap-2 rounded-full border-2 px-4 py-2 text-sm font-medium",
                         active
@@ -289,8 +279,8 @@ export function QuoteWizard({ initialService }: { initialService?: ServiceSlug }
 
       {step === 2 && (
         <StepShell
-          title="How can we reach you?"
-          subtitle="Your info stays with the Hive. We'll never share it."
+          title={t.contactTitle}
+          subtitle={t.contactSub}
         >
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Name" htmlFor="wizard-name" error={errors.name}>
@@ -350,12 +340,12 @@ export function QuoteWizard({ initialService }: { initialService?: ServiceSlug }
 
       {step === 3 && (
         <StepShell
-          title="Anything else?"
-          subtitle="Optional notes, gate codes, timing preferences."
+          title={t.reviewTitle}
+          subtitle={t.reviewSub}
         >
           <div className="space-y-4">
             <div>
-              <Label className="text-sm font-semibold text-navy">Preferred contact method</Label>
+              <Label className="text-sm font-semibold text-navy">{t.preferredLabel}</Label>
               <RadioGroup
                 value={preferred}
                 onValueChange={setPreferred}
@@ -382,11 +372,11 @@ export function QuoteWizard({ initialService }: { initialService?: ServiceSlug }
               </RadioGroup>
             </div>
             <div>
-              <Label className="text-sm font-semibold text-navy">Notes (optional)</Label>
+              <Label className="text-sm font-semibold text-navy">{t.notesLabel}</Label>
               <Textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value.slice(0, 800))}
-                placeholder="Anything we should know before we quote?"
+                placeholder={t.notesPlaceholder}
                 rows={4}
                 className="mt-2"
               />
@@ -403,7 +393,7 @@ export function QuoteWizard({ initialService }: { initialService?: ServiceSlug }
           disabled={step === 0}
           className="rounded-full text-navy disabled:opacity-0"
         >
-          <ArrowLeft className="h-4 w-4 mr-1" /> Back
+          <ArrowLeft className="h-4 w-4 mr-1" /> {t.back}
         </Button>
 
         {step < STEPS.length - 1 ? (
@@ -411,7 +401,7 @@ export function QuoteWizard({ initialService }: { initialService?: ServiceSlug }
             onClick={next}
             className="rounded-full bg-cta text-cta-foreground hover:bg-cta/90 h-11 px-6 font-semibold"
           >
-            Continue <ArrowRight className="h-4 w-4 ml-1" />
+            {t.next} <ArrowRight className="h-4 w-4 ml-1" />
           </Button>
         ) : (
           <Button
@@ -419,7 +409,7 @@ export function QuoteWizard({ initialService }: { initialService?: ServiceSlug }
             disabled={isSubmitting}
             className="rounded-full bg-gold text-navy hover:bg-gold/90 h-11 px-6 font-semibold disabled:opacity-70"
           >
-            {isSubmitting ? "Sending..." : "Send my estimate request"}
+            {isSubmitting ? t.sending : t.submit}
           </Button>
         )}
       </div>

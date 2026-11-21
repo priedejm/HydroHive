@@ -7,7 +7,8 @@ import {
   CarouselNext,
 } from "@/components/ui/carousel";
 import { SectionReveal } from "@/components/site/SectionReveal";
-import { useReviews, useSite } from "@/lib/content/hooks";
+import { useContent } from "@/cms/SiteData";
+import { safeHref } from "@/cms/SmartLink";
 
 function Stars() {
   return (
@@ -20,44 +21,46 @@ function Stars() {
 }
 
 export function ReviewsSection() {
-  const reviews = useReviews();
-  const site = useSite();
+  const content = useContent();
+  const { google } = content.site;
+  const r0 = content.home.reviews;
+  const reviews = r0.items;
   return (
     <section id="reviews" className="scroll-mt-24 bg-cream">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20">
         <SectionReveal className="flex flex-wrap items-end justify-between gap-6">
           <div>
             <span className="inline-block text-xs font-bold uppercase tracking-widest text-gold">
-              What Charleston is saying
+              {r0.eyebrow}
             </span>
             <h2 className="mt-3 font-display text-4xl sm:text-5xl text-navy">
-              Reviews from the Hive
+              {r0.title}
             </h2>
             <div className="mt-4 flex items-center gap-3">
               <Stars />
               <span className="font-display text-2xl text-navy">
-                {site.googleRating.toFixed(1)}
+                {google.rating.toFixed(1)}
               </span>
               <span className="text-sm text-muted-foreground">
-                from {site.googleReviewCount} Google reviews
+                from {google.reviewCount} {r0.countLabel}
               </span>
             </div>
           </div>
           <a
-            href={site.googleReviewsUrl}
+            href={safeHref(google.reviewsUrl)}
             target="_blank"
             rel="noreferrer"
             className="inline-flex items-center gap-1.5 rounded-full border border-navy/15 bg-white px-4 py-2.5 text-sm font-semibold text-navy hover:border-navy/40 transition-colors"
           >
-            Read all reviews on Google <ExternalLink className="h-3.5 w-3.5" />
+            {r0.allLink} <ExternalLink className="h-3.5 w-3.5" />
           </a>
         </SectionReveal>
 
         <SectionReveal delay={100} className="mt-12">
           <Carousel opts={{ align: "start", loop: true }} className="px-1">
             <CarouselContent>
-              {reviews.map((r) => (
-                <CarouselItem key={r.name + r.timeAgo} className="sm:basis-1/2 lg:basis-1/3">
+              {reviews.map((r, i) => (
+                <CarouselItem key={i} className="sm:basis-1/2 lg:basis-1/3">
                   <figure className="flex h-full flex-col rounded-3xl bg-card border border-border p-6 shadow-sm">
                     <Quote className="h-6 w-6 text-gold" />
                     <Stars />

@@ -1,5 +1,6 @@
-import type { ServiceSlug } from "@/lib/site";
-import { DEFAULT_CONTENT } from "@/lib/content/defaults";
+import { LOCATION_ROUTES, LOCATION_PAGE, type ServiceSlug } from "@/lib/site";
+import { DEFAULTS, contactInfo } from "@/content/defaults";
+import { telHref } from "@/cms/Rich";
 
 /**
  * Structured data helpers.
@@ -10,42 +11,41 @@ import { DEFAULT_CONTENT } from "@/lib/content/defaults";
  * their review-snippet policy. The on-page ReviewsSection shows real
  * Google reviews to visitors, it's just not marked up for rich results.
  *
- * This runs at route-module load time (inside each route's `head()`),
- * before any component has rendered - so it reads from DEFAULT_CONTENT
- * (the build-time snapshot) rather than the live-fetched admin content.
- * Same limitation as the <head> meta tags: this SPA has no SSR, so
- * search/social crawlers were already only seeing build-time content.
+ * SEO stays in code: this runs at route-module load time (inside each
+ * route's `head()`) and reads the bundled DEFAULTS, not Content Studio edits.
  */
 
-const SITE = DEFAULT_CONTENT.site;
-const LOCATIONS = DEFAULT_CONTENT.locations;
+const DOMAIN = "https://thehydrohive.com";
+const CONTACT = DEFAULTS.site.contact;
+const TELEPHONE = telHref(CONTACT.phone).replace("tel:", "");
+const LOCATIONS = LOCATION_ROUTES.map((r) => ({ name: DEFAULTS[LOCATION_PAGE[r.slug]].about.name }));
 
-const absoluteUrl = (path: string) => `${SITE.domain}${path}`;
+const absoluteUrl = (path: string) => `${DOMAIN}${path}`;
 
 export function buildLocalBusinessSchema() {
   return {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
-    name: SITE.legalName,
-    alternateName: SITE.name,
-    url: SITE.domain,
-    telephone: SITE.phoneHref.replace("tel:", ""),
-    email: SITE.email,
+    name: CONTACT.legalName,
+    alternateName: CONTACT.name,
+    url: DOMAIN,
+    telephone: TELEPHONE,
+    email: CONTACT.email,
     priceRange: "$$",
     image: absoluteUrl("/og-image.png"),
     address: {
       "@type": "PostalAddress",
-      streetAddress: SITE.street,
-      addressLocality: SITE.addressLocality,
-      addressRegion: SITE.addressRegion,
-      postalCode: SITE.postalCode,
+      streetAddress: CONTACT.street,
+      addressLocality: CONTACT.city,
+      addressRegion: CONTACT.state,
+      postalCode: CONTACT.zip,
       addressCountry: "US",
     },
     areaServed: LOCATIONS.map((l) => ({
       "@type": "City",
       name: l.name,
     })),
-    sameAs: [SITE.instagram],
+    sameAs: [CONTACT.instagram],
   };
 }
 
@@ -87,19 +87,20 @@ export function buildServiceSchema(opts: {
     "@context": "https://schema.org",
     "@type": "Service",
     serviceType: opts.name,
-    name: `${opts.name} · ${SITE.name}`,
+    name: `${opts.name} · ${CONTACT.name}`,
     description: opts.description,
     url: absoluteUrl(opts.path),
     provider: {
       "@type": "LocalBusiness",
-      name: SITE.legalName,
-      telephone: SITE.phoneHref.replace("tel:", ""),
-      address: SITE.fullAddress,
+      name: CONTACT.legalName,
+      telephone: TELEPHONE,
+      address: contactInfo(CONTACT).fullAddress,
     },
     areaServed: LOCATIONS.map((l) => l.name),
   };
 }
 
 export function jsonLdScript(data: unknown) {
-  return { attrs: { type: "application/ld+json" }, children: JSON.stringify(data) };
+  // The router spreads these keys straight onto the <script> tag.
+  return { type: "application/ld+json", children: JSON.stringify(data) };
 }

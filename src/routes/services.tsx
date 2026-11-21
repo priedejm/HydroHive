@@ -2,8 +2,15 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SectionReveal } from "@/components/site/SectionReveal";
-import { getServicePath, getLocationPath } from "@/lib/site";
-import { useServices, useLocations, useServiceContentMap } from "@/lib/content/hooks";
+import {
+  SERVICE_ROUTES,
+  LOCATION_ROUTES,
+  SERVICE_PAGE,
+  LOCATION_PAGE,
+  getServicePath,
+  getLocationPath,
+} from "@/lib/site";
+import { useContent, useImage } from "@/cms/SiteData";
 import { buildBreadcrumbSchema, jsonLdScript } from "@/lib/schema";
 import { cn } from "@/lib/utils";
 
@@ -37,21 +44,30 @@ export const Route = createFileRoute("/services")({
 });
 
 function ServicesPage() {
-  const services = useServices();
-  const locations = useLocations();
-  const serviceContent = useServiceContentMap();
+  const all = useContent();
+  const page = all.services;
+  const images = {
+    residential: useImage("residential-photo"),
+    commercial: useImage("commercial-photo"),
+    dock: useImage("dock-photo"),
+    drone: useImage("drone-photo"),
+  };
+  const services = SERVICE_ROUTES.map((r) => {
+    const key = SERVICE_PAGE[r.slug];
+    return { slug: r.slug, ...all[key].about, bullets: all[key].included.bullets, image: images[key] };
+  });
+  const locations = LOCATION_ROUTES.map((r) => ({ slug: r.slug, name: all[LOCATION_PAGE[r.slug]].about.name }));
   return (
     <div>
       <section className="bg-navy text-primary-foreground">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 text-center">
           <SectionReveal>
             <span className="text-xs font-bold uppercase tracking-widest text-gold">
-              Our services
+              {page.hero.eyebrow}
             </span>
-            <h1 className="mt-3 font-display text-5xl sm:text-6xl">Clean, top to bottom.</h1>
+            <h1 className="mt-3 font-display text-5xl sm:text-6xl">{page.hero.title}</h1>
             <p className="mt-4 max-w-2xl mx-auto text-primary-foreground/80">
-              Four services, one crew. Pick what you need - we'll bring the pressure, the chemistry,
-              and the care.
+              {page.hero.sub}
             </p>
             <nav className="mt-8 flex flex-wrap justify-center gap-2">
               {services.map((s) => (
@@ -72,7 +88,6 @@ function ServicesPage() {
         {services.map((s, i) => {
           const reverse = i % 2 === 1;
           const isDrone = s.slug === "drone-cleaning";
-          const content = serviceContent[s.slug];
           return (
             <section
               key={s.slug}
@@ -87,7 +102,7 @@ function ServicesPage() {
                 <SectionReveal>
                   <div className="overflow-hidden rounded-3xl shadow-lg border-4 border-white">
                     <img
-                      src={content.image}
+                      src={s.image}
                       alt={s.name}
                       className="w-full aspect-[4/3] object-cover"
                     />
@@ -100,7 +115,7 @@ function ServicesPage() {
                       isDrone ? "text-navy" : "text-gold",
                     )}
                   >
-                    Service {String(i + 1).padStart(2, "0")}
+                    {page.list.numberPrefix} {String(i + 1).padStart(2, "0")}
                   </span>
                   <h2 className={cn("mt-3 font-display text-4xl sm:text-5xl", "text-navy")}>
                     {s.name}
@@ -114,8 +129,8 @@ function ServicesPage() {
                     {s.long}
                   </p>
                   <ul className="mt-6 grid gap-2 sm:grid-cols-2">
-                    {content.bullets.map((b) => (
-                      <li key={b} className="flex items-start gap-2 text-sm text-navy">
+                    {s.bullets.map((b, i) => (
+                      <li key={i} className="flex items-start gap-2 text-sm text-navy">
                         <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-navy text-primary-foreground">
                           <Check className="h-3 w-3" strokeWidth={3} />
                         </span>
@@ -139,7 +154,7 @@ function ServicesPage() {
                         isDrone ? "text-navy hover:text-navy/70" : "text-navy hover:text-gold",
                       )}
                     >
-                      Full details &amp; FAQs <ArrowRight className="h-4 w-4" />
+                      {page.list.detailsLink} <ArrowRight className="h-4 w-4" />
                     </Link>
                   </div>
                 </SectionReveal>
@@ -153,10 +168,10 @@ function ServicesPage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
           <SectionReveal>
             <span className="text-xs font-bold uppercase tracking-widest text-gold">
-              Where we work
+              {page.areas.eyebrow}
             </span>
             <h2 className="mt-3 font-display text-3xl sm:text-4xl text-navy">
-              Serving the Charleston Lowcountry
+              {page.areas.title}
             </h2>
             <div className="mt-6 flex flex-wrap gap-2">
               {locations.map((l) => (

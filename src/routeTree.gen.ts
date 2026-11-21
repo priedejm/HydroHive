@@ -17,6 +17,7 @@ import { Route as DroneCleaningRouteImport } from './routes/drone-cleaning'
 import { Route as DockRouteImport } from './routes/dock'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CommercialRouteImport } from './routes/commercial'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ServiceAreasIndexRouteImport } from './routes/service-areas/index'
 import { Route as ServiceAreasWestAshleyRouteImport } from './routes/service-areas/west-ashley'
@@ -24,17 +25,6 @@ import { Route as ServiceAreasMountPleasantRouteImport } from './routes/service-
 import { Route as ServiceAreasJamesIslandRouteImport } from './routes/service-areas/james-island'
 import { Route as ServiceAreasDowntownCharlestonRouteImport } from './routes/service-areas/downtown-charleston'
 import { Route as ServiceAreasDanielIslandRouteImport } from './routes/service-areas/daniel-island'
-import { Route as AdminLayoutRouteImport } from './routes/admin/_layout'
-import { Route as AdminLayoutIndexRouteImport } from './routes/admin/_layout/index'
-import { Route as AdminLayoutTeamRouteImport } from './routes/admin/_layout/team'
-import { Route as AdminLayoutSiteRouteImport } from './routes/admin/_layout/site'
-import { Route as AdminLayoutSeoRouteImport } from './routes/admin/_layout/seo'
-import { Route as AdminLayoutReviewsRouteImport } from './routes/admin/_layout/reviews'
-import { Route as AdminLayoutLoginRouteImport } from './routes/admin/_layout/login'
-import { Route as AdminLayoutHomeRouteImport } from './routes/admin/_layout/home'
-import { Route as AdminLayoutGalleryRouteImport } from './routes/admin/_layout/gallery'
-import { Route as AdminLayoutServicesSlugRouteImport } from './routes/admin/_layout/services.$slug'
-import { Route as AdminLayoutServiceAreasSlugRouteImport } from './routes/admin/_layout/service-areas.$slug'
 
 const TeamRoute = TeamRouteImport.update({
   id: '/team',
@@ -76,6 +66,11 @@ const CommercialRoute = CommercialRouteImport.update({
   path: '/commercial',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -114,65 +109,10 @@ const ServiceAreasDanielIslandRoute =
     path: '/service-areas/daniel-island',
     getParentRoute: () => rootRouteImport,
   } as any)
-const AdminLayoutRoute = AdminLayoutRouteImport.update({
-  id: '/admin/_layout',
-  path: '/admin',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminLayoutIndexRoute = AdminLayoutIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AdminLayoutRoute,
-} as any)
-const AdminLayoutTeamRoute = AdminLayoutTeamRouteImport.update({
-  id: '/team',
-  path: '/team',
-  getParentRoute: () => AdminLayoutRoute,
-} as any)
-const AdminLayoutSiteRoute = AdminLayoutSiteRouteImport.update({
-  id: '/site',
-  path: '/site',
-  getParentRoute: () => AdminLayoutRoute,
-} as any)
-const AdminLayoutSeoRoute = AdminLayoutSeoRouteImport.update({
-  id: '/seo',
-  path: '/seo',
-  getParentRoute: () => AdminLayoutRoute,
-} as any)
-const AdminLayoutReviewsRoute = AdminLayoutReviewsRouteImport.update({
-  id: '/reviews',
-  path: '/reviews',
-  getParentRoute: () => AdminLayoutRoute,
-} as any)
-const AdminLayoutLoginRoute = AdminLayoutLoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => AdminLayoutRoute,
-} as any)
-const AdminLayoutHomeRoute = AdminLayoutHomeRouteImport.update({
-  id: '/home',
-  path: '/home',
-  getParentRoute: () => AdminLayoutRoute,
-} as any)
-const AdminLayoutGalleryRoute = AdminLayoutGalleryRouteImport.update({
-  id: '/gallery',
-  path: '/gallery',
-  getParentRoute: () => AdminLayoutRoute,
-} as any)
-const AdminLayoutServicesSlugRoute = AdminLayoutServicesSlugRouteImport.update({
-  id: '/services/$slug',
-  path: '/services/$slug',
-  getParentRoute: () => AdminLayoutRoute,
-} as any)
-const AdminLayoutServiceAreasSlugRoute =
-  AdminLayoutServiceAreasSlugRouteImport.update({
-    id: '/service-areas/$slug',
-    path: '/service-areas/$slug',
-    getParentRoute: () => AdminLayoutRoute,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/commercial': typeof CommercialRoute
   '/contact': typeof ContactRoute
   '/dock': typeof DockRoute
@@ -181,26 +121,16 @@ export interface FileRoutesByFullPath {
   '/residential': typeof ResidentialRoute
   '/services': typeof ServicesRoute
   '/team': typeof TeamRoute
-  '/admin': typeof AdminLayoutRouteWithChildren
   '/service-areas/daniel-island': typeof ServiceAreasDanielIslandRoute
   '/service-areas/downtown-charleston': typeof ServiceAreasDowntownCharlestonRoute
   '/service-areas/james-island': typeof ServiceAreasJamesIslandRoute
   '/service-areas/mount-pleasant': typeof ServiceAreasMountPleasantRoute
   '/service-areas/west-ashley': typeof ServiceAreasWestAshleyRoute
   '/service-areas/': typeof ServiceAreasIndexRoute
-  '/admin/gallery': typeof AdminLayoutGalleryRoute
-  '/admin/home': typeof AdminLayoutHomeRoute
-  '/admin/login': typeof AdminLayoutLoginRoute
-  '/admin/reviews': typeof AdminLayoutReviewsRoute
-  '/admin/seo': typeof AdminLayoutSeoRoute
-  '/admin/site': typeof AdminLayoutSiteRoute
-  '/admin/team': typeof AdminLayoutTeamRoute
-  '/admin/': typeof AdminLayoutIndexRoute
-  '/admin/service-areas/$slug': typeof AdminLayoutServiceAreasSlugRoute
-  '/admin/services/$slug': typeof AdminLayoutServicesSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/commercial': typeof CommercialRoute
   '/contact': typeof ContactRoute
   '/dock': typeof DockRoute
@@ -215,20 +145,11 @@ export interface FileRoutesByTo {
   '/service-areas/mount-pleasant': typeof ServiceAreasMountPleasantRoute
   '/service-areas/west-ashley': typeof ServiceAreasWestAshleyRoute
   '/service-areas': typeof ServiceAreasIndexRoute
-  '/admin/gallery': typeof AdminLayoutGalleryRoute
-  '/admin/home': typeof AdminLayoutHomeRoute
-  '/admin/login': typeof AdminLayoutLoginRoute
-  '/admin/reviews': typeof AdminLayoutReviewsRoute
-  '/admin/seo': typeof AdminLayoutSeoRoute
-  '/admin/site': typeof AdminLayoutSiteRoute
-  '/admin/team': typeof AdminLayoutTeamRoute
-  '/admin': typeof AdminLayoutIndexRoute
-  '/admin/service-areas/$slug': typeof AdminLayoutServiceAreasSlugRoute
-  '/admin/services/$slug': typeof AdminLayoutServicesSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/commercial': typeof CommercialRoute
   '/contact': typeof ContactRoute
   '/dock': typeof DockRoute
@@ -237,28 +158,18 @@ export interface FileRoutesById {
   '/residential': typeof ResidentialRoute
   '/services': typeof ServicesRoute
   '/team': typeof TeamRoute
-  '/admin/_layout': typeof AdminLayoutRouteWithChildren
   '/service-areas/daniel-island': typeof ServiceAreasDanielIslandRoute
   '/service-areas/downtown-charleston': typeof ServiceAreasDowntownCharlestonRoute
   '/service-areas/james-island': typeof ServiceAreasJamesIslandRoute
   '/service-areas/mount-pleasant': typeof ServiceAreasMountPleasantRoute
   '/service-areas/west-ashley': typeof ServiceAreasWestAshleyRoute
   '/service-areas/': typeof ServiceAreasIndexRoute
-  '/admin/_layout/gallery': typeof AdminLayoutGalleryRoute
-  '/admin/_layout/home': typeof AdminLayoutHomeRoute
-  '/admin/_layout/login': typeof AdminLayoutLoginRoute
-  '/admin/_layout/reviews': typeof AdminLayoutReviewsRoute
-  '/admin/_layout/seo': typeof AdminLayoutSeoRoute
-  '/admin/_layout/site': typeof AdminLayoutSiteRoute
-  '/admin/_layout/team': typeof AdminLayoutTeamRoute
-  '/admin/_layout/': typeof AdminLayoutIndexRoute
-  '/admin/_layout/service-areas/$slug': typeof AdminLayoutServiceAreasSlugRoute
-  '/admin/_layout/services/$slug': typeof AdminLayoutServicesSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/commercial'
     | '/contact'
     | '/dock'
@@ -267,26 +178,16 @@ export interface FileRouteTypes {
     | '/residential'
     | '/services'
     | '/team'
-    | '/admin'
     | '/service-areas/daniel-island'
     | '/service-areas/downtown-charleston'
     | '/service-areas/james-island'
     | '/service-areas/mount-pleasant'
     | '/service-areas/west-ashley'
     | '/service-areas/'
-    | '/admin/gallery'
-    | '/admin/home'
-    | '/admin/login'
-    | '/admin/reviews'
-    | '/admin/seo'
-    | '/admin/site'
-    | '/admin/team'
-    | '/admin/'
-    | '/admin/service-areas/$slug'
-    | '/admin/services/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin'
     | '/commercial'
     | '/contact'
     | '/dock'
@@ -301,19 +202,10 @@ export interface FileRouteTypes {
     | '/service-areas/mount-pleasant'
     | '/service-areas/west-ashley'
     | '/service-areas'
-    | '/admin/gallery'
-    | '/admin/home'
-    | '/admin/login'
-    | '/admin/reviews'
-    | '/admin/seo'
-    | '/admin/site'
-    | '/admin/team'
-    | '/admin'
-    | '/admin/service-areas/$slug'
-    | '/admin/services/$slug'
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/commercial'
     | '/contact'
     | '/dock'
@@ -322,27 +214,17 @@ export interface FileRouteTypes {
     | '/residential'
     | '/services'
     | '/team'
-    | '/admin/_layout'
     | '/service-areas/daniel-island'
     | '/service-areas/downtown-charleston'
     | '/service-areas/james-island'
     | '/service-areas/mount-pleasant'
     | '/service-areas/west-ashley'
     | '/service-areas/'
-    | '/admin/_layout/gallery'
-    | '/admin/_layout/home'
-    | '/admin/_layout/login'
-    | '/admin/_layout/reviews'
-    | '/admin/_layout/seo'
-    | '/admin/_layout/site'
-    | '/admin/_layout/team'
-    | '/admin/_layout/'
-    | '/admin/_layout/service-areas/$slug'
-    | '/admin/_layout/services/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
   CommercialRoute: typeof CommercialRoute
   ContactRoute: typeof ContactRoute
   DockRoute: typeof DockRoute
@@ -351,7 +233,6 @@ export interface RootRouteChildren {
   ResidentialRoute: typeof ResidentialRoute
   ServicesRoute: typeof ServicesRoute
   TeamRoute: typeof TeamRoute
-  AdminLayoutRoute: typeof AdminLayoutRouteWithChildren
   ServiceAreasDanielIslandRoute: typeof ServiceAreasDanielIslandRoute
   ServiceAreasDowntownCharlestonRoute: typeof ServiceAreasDowntownCharlestonRoute
   ServiceAreasJamesIslandRoute: typeof ServiceAreasJamesIslandRoute
@@ -418,6 +299,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CommercialRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -467,118 +355,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ServiceAreasDanielIslandRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/_layout': {
-      id: '/admin/_layout'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AdminLayoutRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/_layout/': {
-      id: '/admin/_layout/'
-      path: '/'
-      fullPath: '/admin/'
-      preLoaderRoute: typeof AdminLayoutIndexRouteImport
-      parentRoute: typeof AdminLayoutRoute
-    }
-    '/admin/_layout/team': {
-      id: '/admin/_layout/team'
-      path: '/team'
-      fullPath: '/admin/team'
-      preLoaderRoute: typeof AdminLayoutTeamRouteImport
-      parentRoute: typeof AdminLayoutRoute
-    }
-    '/admin/_layout/site': {
-      id: '/admin/_layout/site'
-      path: '/site'
-      fullPath: '/admin/site'
-      preLoaderRoute: typeof AdminLayoutSiteRouteImport
-      parentRoute: typeof AdminLayoutRoute
-    }
-    '/admin/_layout/seo': {
-      id: '/admin/_layout/seo'
-      path: '/seo'
-      fullPath: '/admin/seo'
-      preLoaderRoute: typeof AdminLayoutSeoRouteImport
-      parentRoute: typeof AdminLayoutRoute
-    }
-    '/admin/_layout/reviews': {
-      id: '/admin/_layout/reviews'
-      path: '/reviews'
-      fullPath: '/admin/reviews'
-      preLoaderRoute: typeof AdminLayoutReviewsRouteImport
-      parentRoute: typeof AdminLayoutRoute
-    }
-    '/admin/_layout/login': {
-      id: '/admin/_layout/login'
-      path: '/login'
-      fullPath: '/admin/login'
-      preLoaderRoute: typeof AdminLayoutLoginRouteImport
-      parentRoute: typeof AdminLayoutRoute
-    }
-    '/admin/_layout/home': {
-      id: '/admin/_layout/home'
-      path: '/home'
-      fullPath: '/admin/home'
-      preLoaderRoute: typeof AdminLayoutHomeRouteImport
-      parentRoute: typeof AdminLayoutRoute
-    }
-    '/admin/_layout/gallery': {
-      id: '/admin/_layout/gallery'
-      path: '/gallery'
-      fullPath: '/admin/gallery'
-      preLoaderRoute: typeof AdminLayoutGalleryRouteImport
-      parentRoute: typeof AdminLayoutRoute
-    }
-    '/admin/_layout/services/$slug': {
-      id: '/admin/_layout/services/$slug'
-      path: '/services/$slug'
-      fullPath: '/admin/services/$slug'
-      preLoaderRoute: typeof AdminLayoutServicesSlugRouteImport
-      parentRoute: typeof AdminLayoutRoute
-    }
-    '/admin/_layout/service-areas/$slug': {
-      id: '/admin/_layout/service-areas/$slug'
-      path: '/service-areas/$slug'
-      fullPath: '/admin/service-areas/$slug'
-      preLoaderRoute: typeof AdminLayoutServiceAreasSlugRouteImport
-      parentRoute: typeof AdminLayoutRoute
-    }
   }
 }
 
-interface AdminLayoutRouteChildren {
-  AdminLayoutGalleryRoute: typeof AdminLayoutGalleryRoute
-  AdminLayoutHomeRoute: typeof AdminLayoutHomeRoute
-  AdminLayoutLoginRoute: typeof AdminLayoutLoginRoute
-  AdminLayoutReviewsRoute: typeof AdminLayoutReviewsRoute
-  AdminLayoutSeoRoute: typeof AdminLayoutSeoRoute
-  AdminLayoutSiteRoute: typeof AdminLayoutSiteRoute
-  AdminLayoutTeamRoute: typeof AdminLayoutTeamRoute
-  AdminLayoutIndexRoute: typeof AdminLayoutIndexRoute
-  AdminLayoutServiceAreasSlugRoute: typeof AdminLayoutServiceAreasSlugRoute
-  AdminLayoutServicesSlugRoute: typeof AdminLayoutServicesSlugRoute
-}
-
-const AdminLayoutRouteChildren: AdminLayoutRouteChildren = {
-  AdminLayoutGalleryRoute: AdminLayoutGalleryRoute,
-  AdminLayoutHomeRoute: AdminLayoutHomeRoute,
-  AdminLayoutLoginRoute: AdminLayoutLoginRoute,
-  AdminLayoutReviewsRoute: AdminLayoutReviewsRoute,
-  AdminLayoutSeoRoute: AdminLayoutSeoRoute,
-  AdminLayoutSiteRoute: AdminLayoutSiteRoute,
-  AdminLayoutTeamRoute: AdminLayoutTeamRoute,
-  AdminLayoutIndexRoute: AdminLayoutIndexRoute,
-  AdminLayoutServiceAreasSlugRoute: AdminLayoutServiceAreasSlugRoute,
-  AdminLayoutServicesSlugRoute: AdminLayoutServicesSlugRoute,
-}
-
-const AdminLayoutRouteWithChildren = AdminLayoutRoute._addFileChildren(
-  AdminLayoutRouteChildren,
-)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
   CommercialRoute: CommercialRoute,
   ContactRoute: ContactRoute,
   DockRoute: DockRoute,
@@ -587,7 +369,6 @@ const rootRouteChildren: RootRouteChildren = {
   ResidentialRoute: ResidentialRoute,
   ServicesRoute: ServicesRoute,
   TeamRoute: TeamRoute,
-  AdminLayoutRoute: AdminLayoutRouteWithChildren,
   ServiceAreasDanielIslandRoute: ServiceAreasDanielIslandRoute,
   ServiceAreasDowntownCharlestonRoute: ServiceAreasDowntownCharlestonRoute,
   ServiceAreasJamesIslandRoute: ServiceAreasJamesIslandRoute,

@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import { SectionReveal } from "@/components/site/SectionReveal";
-import { getLocationPath } from "@/lib/site";
-import { useLocations, useSite } from "@/lib/content/hooks";
+import { LOCATION_ROUTES, LOCATION_PAGE, getLocationPath } from "@/lib/site";
+import { useContent } from "@/cms/SiteData";
 import { buildBreadcrumbSchema, jsonLdScript } from "@/lib/schema";
 
 export const Route = createFileRoute("/service-areas/")({
@@ -35,20 +35,20 @@ export const Route = createFileRoute("/service-areas/")({
 });
 
 function ServiceAreasIndex() {
-  const locations = useLocations();
-  const site = useSite();
+  const content = useContent();
+  const hero = content.serviceAreas.hero;
+  const locations = LOCATION_ROUTES.map((r) => ({ slug: r.slug, ...content[LOCATION_PAGE[r.slug]].about }));
   return (
     <div>
       <section className="bg-navy text-primary-foreground">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 text-center">
           <SectionReveal>
             <span className="text-xs font-bold uppercase tracking-widest text-gold">
-              Where we work
+              {hero.eyebrow}
             </span>
-            <h1 className="mt-3 font-display text-5xl sm:text-6xl">Service areas</h1>
+            <h1 className="mt-3 font-display text-5xl sm:text-6xl">{hero.title}</h1>
             <p className="mt-4 max-w-2xl mx-auto text-primary-foreground/80">
-              Based at {site.fullAddress}, the Hive covers the Charleston peninsula and the
-              surrounding Lowcountry.
+              {hero.sub}
             </p>
           </SectionReveal>
         </div>
@@ -68,7 +68,7 @@ function ServiceAreasIndex() {
                 <h2 className="mt-2 font-display text-2xl text-navy">{l.name}</h2>
                 <p className="mt-2 text-sm text-muted-foreground">{l.short}</p>
                 <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-navy group-hover:text-gold transition-colors">
-                  View {l.name} services <ArrowRight className="h-4 w-4" />
+                  {l.cardLink} <ArrowRight className="h-4 w-4" />
                 </span>
               </Link>
             </SectionReveal>
